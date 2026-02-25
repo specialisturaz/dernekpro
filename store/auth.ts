@@ -16,6 +16,7 @@ interface AuthState {
 
   login: (email: string, password: string, type?: "user" | "member") => Promise<boolean>;
   register: (data: Record<string, unknown>) => Promise<{ success: boolean; message: string }>;
+  registerMember: (data: Record<string, unknown>) => Promise<{ success: boolean; message: string }>;
   logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
   clearError: () => void;
@@ -73,6 +74,30 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
 
       set({ user: { ...data.data, type: "user" } });
+      return { success: true, message: data.message };
+    } catch {
+      set({ isLoading: false, error: "Bağlantı hatası" });
+      return { success: false, message: "Bağlantı hatası" };
+    }
+  },
+
+  registerMember: async (formData) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await fetch("/api/auth/member/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      set({ isLoading: false });
+
+      if (!res.ok) {
+        set({ error: data.message });
+        return { success: false, message: data.message };
+      }
+
       return { success: true, message: data.message };
     } catch {
       set({ isLoading: false, error: "Bağlantı hatası" });

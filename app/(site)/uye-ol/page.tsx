@@ -1,35 +1,36 @@
 import type { Metadata } from "next";
+import MemberRegistrationForm from "@/components/site/MemberRegistrationForm";
 
 export const metadata: Metadata = {
-  title: "Uye Ol",
+  title: "Üye Ol",
   description:
-    "Dernegimize uye olarak toplumsal degisimin bir parcasi olun. Uyelik formu ve avantajlari.",
+    "Derneğimize üye olarak toplumsal değişimin bir parçası olun. Üyelik formu ve avantajları.",
 };
 
 const avantajlar = [
   {
-    baslik: "Etkinliklere Oncelikli Katilim",
-    aciklama: "Tum etkinliklerimize oncelikli kayit hakki elde edin.",
+    baslik: "Etkinliklere Öncelikli Katılım",
+    aciklama: "Tüm etkinliklerimize öncelikli kayıt hakkı elde edin.",
   },
   {
-    baslik: "Ozel Icerik Erisimi",
-    aciklama: "Uyelere ozel rapor, analiz ve egitim iceriklerine erisin.",
+    baslik: "Özel İçerik Erişimi",
+    aciklama: "Üyelere özel rapor, analiz ve eğitim içeriklerine erişin.",
   },
   {
-    baslik: "Oy Kullanma Hakki",
-    aciklama: "Genel kurul toplantisinda oy kullanarak yonetime katkin.",
+    baslik: "Oy Kullanma Hakkı",
+    aciklama: "Genel kurul toplantısında oy kullanarak yönetime katkın.",
   },
   {
-    baslik: "Networking Firsatlari",
-    aciklama: "Farkli sektorlerden binlerce uye ile tanisin ve ag kurun.",
+    baslik: "Networking Fırsatları",
+    aciklama: "Farklı sektörlerden binlerce üye ile tanışın ve ağ kurun.",
   },
   {
-    baslik: "Indirim ve Avantajlar",
-    aciklama: "Anlasmayli kurumlarda ozel indirim ve avantajlardan yararlanin.",
+    baslik: "İndirim ve Avantajlar",
+    aciklama: "Anlaşmalı kurumlarda özel indirim ve avantajlardan yararlanın.",
   },
   {
-    baslik: "Sertifika Programlari",
-    aciklama: "Ucretsiz egitim ve sertifika programlarina katilin.",
+    baslik: "Sertifika Programları",
+    aciklama: "Ücretsiz eğitim ve sertifika programlarına katılın.",
   },
 ];
 
@@ -44,29 +45,29 @@ export default function UyeOlPage() {
               Ana Sayfa
             </a>
             <span className="mx-2">/</span>
-            <span className="text-white">Uye Ol</span>
+            <span className="text-white">Üye Ol</span>
           </nav>
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6">
-              Ailemize Katilin
+              Ailemize Katılın
             </h1>
             <p className="text-lg md:text-xl text-white/80">
-              2.500+ aktif uyemizle birlikte toplumsal degisimin bir parcasi
-              olun. Uyelik basvurunuzu simdi yapin.
+              2.500+ aktif üyemizle birlikte toplumsal değişimin bir parçası
+              olun. Üyelik başvurunuzu şimdi yapın.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Uyelik Avantajlari */}
+      {/* Üyelik Avantajları */}
       <section className="section-padding bg-background-alt">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-4">
-              Uyelik Avantajlari
+              Üyelik Avantajları
             </h2>
             <p className="text-muted max-w-2xl mx-auto">
-              Uye olarak elde edebileceginiz avantajlari kesfet.
+              Üye olarak elde edebileceğiniz avantajları keşfedin.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -102,215 +103,21 @@ export default function UyeOlPage() {
         </div>
       </section>
 
-      {/* Uyelik Formu */}
+      {/* Üyelik Formu */}
       <section className="section-padding bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-10">
               <h2 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-4">
-                Uyelik Basvuru Formu
+                Üyelik Başvuru Formu
               </h2>
               <p className="text-muted">
-                Asagidaki formu doldurarak uyelik basvurunuzu gerceklestirebilirsiniz.
-                Basvurunuz yonetim kurulu tarafindan degerlendirilecektir.
+                Aşağıdaki formu doldurarak üyelik başvurunuzu gerçekleştirebilirsiniz.
+                Başvurunuz yönetim kurulu tarafından değerlendirilecektir.
               </p>
             </div>
 
-            <div className="card p-8">
-              {/* Kisisel Bilgiler */}
-              <div className="mb-8">
-                <h3 className="text-lg font-bold font-heading text-foreground mb-4 pb-2 border-b border-border">
-                  Kisisel Bilgiler
-                </h3>
-                <div className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                        Ad <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Adiniz"
-                        className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                        Soyad <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Soyadiniz"
-                        className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                      T.C. Kimlik No <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="11 haneli T.C. kimlik numaraniz"
-                      maxLength={11}
-                      className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                    />
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                        Dogum Tarihi <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="date"
-                        className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                        Cinsiyet <span className="text-red-500">*</span>
-                      </label>
-                      <select className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
-                        <option value="">Seciniz</option>
-                        <option value="erkek">Erkek</option>
-                        <option value="kadin">Kadin</option>
-                        <option value="belirtmek-istemiyorum">
-                          Belirtmek Istemiyorum
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Iletisim Bilgileri */}
-              <div className="mb-8">
-                <h3 className="text-lg font-bold font-heading text-foreground mb-4 pb-2 border-b border-border">
-                  Iletisim Bilgileri
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                      E-posta <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="ornek@email.com"
-                      className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                      Telefon <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="0 (5XX) XXX XX XX"
-                      className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                      Adres <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      rows={3}
-                      placeholder="Ikamet adresiniz"
-                      className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none"
-                    />
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                        Il <span className="text-red-500">*</span>
-                      </label>
-                      <select className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
-                        <option value="">Il seciniz</option>
-                        <option>Istanbul</option>
-                        <option>Ankara</option>
-                        <option>Izmir</option>
-                        <option>Bursa</option>
-                        <option>Antalya</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                        Meslek
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Mesleginiz"
-                        className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Ek Bilgiler */}
-              <div className="mb-8">
-                <h3 className="text-lg font-bold font-heading text-foreground mb-4 pb-2 border-b border-border">
-                  Ek Bilgiler
-                </h3>
-                <div>
-                  <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                    Neden uye olmak istiyorsunuz?
-                  </label>
-                  <textarea
-                    rows={4}
-                    placeholder="Uyelik motivasyonunuzu kisaca anlatiniz..."
-                    className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none"
-                  />
-                </div>
-              </div>
-
-              {/* Onaylar */}
-              <div className="space-y-3 mb-8">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary mt-0.5"
-                  />
-                  <span className="text-sm text-muted">
-                    <a href="#" className="text-primary underline">
-                      KVKK Aydinlatma Metnini
-                    </a>{" "}
-                    okudum ve kabul ediyorum.{" "}
-                    <span className="text-red-500">*</span>
-                  </span>
-                </label>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary mt-0.5"
-                  />
-                  <span className="text-sm text-muted">
-                    <a href="#" className="text-primary underline">
-                      Dernek tuzugunu
-                    </a>{" "}
-                    okudum ve kabul ediyorum.{" "}
-                    <span className="text-red-500">*</span>
-                  </span>
-                </label>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary mt-0.5"
-                  />
-                  <span className="text-sm text-muted">
-                    Dernekten e-posta ve SMS ile bilgilendirme almak istiyorum.
-                  </span>
-                </label>
-              </div>
-
-              <button className="btn-primary w-full text-lg py-4">
-                Basvurumu Gonder
-              </button>
-
-              <p className="text-xs text-muted text-center mt-4">
-                Basvurunuz en gec 7 is gunu icerisinde degerlendirilecektir.
-              </p>
-            </div>
+            <MemberRegistrationForm />
           </div>
         </div>
       </section>
