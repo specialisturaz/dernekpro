@@ -1,0 +1,167 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Giris Yap",
+  description: "DernekPro hesabiniza giris yapin. Uyelik paneline, bagis gecmisine ve daha fazlasina erisin.",
+};
+
+export default function GirisPage() {
+  return (
+    <div className="min-h-screen bg-background-alt flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <a href="/" className="inline-block">
+            <span className="text-3xl font-bold font-heading text-primary">
+              Dernek<span className="text-secondary">Pro</span>
+            </span>
+          </a>
+          <p className="text-muted text-sm mt-2">Hesabiniza giris yapin</p>
+        </div>
+
+        {/* Login Card */}
+        <div className="card p-8">
+          <h1 className="text-2xl font-bold font-heading text-foreground mb-6 text-center">
+            Giris Yap
+          </h1>
+
+          <div className="space-y-5">
+            {/* E-posta */}
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                E-posta Adresi
+              </label>
+              <div className="relative">
+                <input
+                  type="email"
+                  placeholder="ornek@email.com"
+                  className="w-full px-4 py-3 pl-11 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                />
+                <svg
+                  className="w-5 h-5 text-muted absolute left-3.5 top-1/2 -translate-y-1/2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Sifre */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-sm font-semibold text-foreground">
+                  Sifre
+                </label>
+                <a
+                  href="#"
+                  className="text-xs text-primary hover:underline font-semibold"
+                >
+                  Sifremi Unuttum
+                </a>
+              </div>
+              <div className="relative">
+                <input
+                  type="password"
+                  placeholder="Sifrenizi giriniz"
+                  className="w-full px-4 py-3 pl-11 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                />
+                <svg
+                  className="w-5 h-5 text-muted absolute left-3.5 top-1/2 -translate-y-1/2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Beni Hatirla */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+              />
+              <span className="text-sm text-muted">Beni hatirla</span>
+            </label>
+
+            {/* Giris Butonu */}
+            <button className="btn-primary w-full text-base py-3.5">
+              Giris Yap
+            </button>
+          </div>
+
+          {/* Ayirici */}
+          <div className="flex items-center gap-4 my-6">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted">veya</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          {/* Sosyal Giris */}
+          <div className="space-y-3">
+            <button className="w-full px-4 py-3 rounded-[var(--border-radius)] border border-border bg-background text-foreground text-sm font-semibold hover:bg-background-alt transition-colors flex items-center justify-center gap-3">
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  fill="#34A853"
+                />
+                <path
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  fill="#FBBC05"
+                />
+                <path
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  fill="#EA4335"
+                />
+              </svg>
+              Google ile Giris Yap
+            </button>
+          </div>
+        </div>
+
+        {/* Kayit Linki */}
+        <p className="text-center text-sm text-muted mt-6">
+          Hesabiniz yok mu?{" "}
+          <a href="/kayit" className="text-primary font-semibold hover:underline">
+            Kayit Olun
+          </a>
+        </p>
+
+        {/* Ana Sayfa Linki */}
+        <p className="text-center mt-4">
+          <a
+            href="/"
+            className="text-sm text-muted hover:text-primary transition-colors inline-flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Ana Sayfaya Don
+          </a>
+        </p>
+      </div>
+    </div>
+  );
+}

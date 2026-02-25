@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* DernekPro Renk Sistemi — Admin panelden değiştirilebilir */
+  --color-primary: #1a5c38;
+  --color-primary-light: #2d8a52;
+  --color-primary-dark: #0f3d24;
+  --color-secondary: #c8860a;
+  --color-accent: #e8f5ee;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b7280;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f8faf9;
+  --color-border: #e5e7eb;
+  --font-primary: "Nunito", sans-serif;
+  --font-heading: "Merriweather", serif;
+  --border-radius: 12px;
+}
+
+.dark {
+  --color-primary: #2d8a52;
+  --color-primary-light: #3da564;
+  --color-primary-dark: #1a5c38;
+  --color-secondary: #d4a037;
+  --color-accent: #1a2e22;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-bg: #0f172a;
+  --color-bg-alt: #1e293b;
+  --color-border: #334155;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-primary), system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading), serif;
+    @apply font-bold tracking-tight;
+  }
+
+  h1 { @apply text-4xl md:text-5xl lg:text-6xl; }
+  h2 { @apply text-3xl md:text-4xl; }
+  h3 { @apply text-2xl md:text-3xl; }
+  h4 { @apply text-xl md:text-2xl; }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-semibold rounded-[var(--border-radius)] hover:bg-primary-dark transition-all duration-200 shadow-md hover:shadow-lg;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-secondary text-white font-semibold rounded-[var(--border-radius)] hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-lg;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-6 py-3 border-2 border-primary text-primary font-semibold rounded-[var(--border-radius)] hover:bg-primary hover:text-white transition-all duration-200;
+  }
+
+  .section-padding {
+    @apply py-16 md:py-24;
+  }
+
+  .card {
+    @apply bg-background rounded-[var(--border-radius)] shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-border;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
