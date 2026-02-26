@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito, Merriweather } from "next/font/google";
+import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -53,7 +54,7 @@ export default function RootLayout({
   return (
     <html lang="tr" className={`${nunito.variable} ${merriweather.variable}`}>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

@@ -61,6 +61,36 @@ export const memberRegisterSchema = z
     path: ["confirmPassword"],
   });
 
+// ===== THEME VALIDATION =====
+const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
+
+const themeColorsSchema = z.object({
+  primary: z.string().regex(hexColorRegex, "Geçerli bir renk kodu girin"),
+  primaryLight: z.string().regex(hexColorRegex, "Geçerli bir renk kodu girin"),
+  primaryDark: z.string().regex(hexColorRegex, "Geçerli bir renk kodu girin"),
+  secondary: z.string().regex(hexColorRegex, "Geçerli bir renk kodu girin"),
+  accent: z.string().regex(hexColorRegex, "Geçerli bir renk kodu girin"),
+  text: z.string().regex(hexColorRegex, "Geçerli bir renk kodu girin"),
+  textMuted: z.string().regex(hexColorRegex, "Geçerli bir renk kodu girin"),
+  bg: z.string().regex(hexColorRegex, "Geçerli bir renk kodu girin"),
+  bgAlt: z.string().regex(hexColorRegex, "Geçerli bir renk kodu girin"),
+  border: z.string().regex(hexColorRegex, "Geçerli bir renk kodu girin"),
+});
+
+export const themeSettingsSchema = z.object({
+  light: themeColorsSchema,
+  dark: themeColorsSchema,
+  typography: z.object({
+    fontPrimary: z.string().min(1),
+    fontHeading: z.string().min(1),
+  }),
+  layout: z.object({
+    borderRadius: z.number().min(0).max(32),
+  }),
+  activePreset: z.string().optional(),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type MemberRegisterInput = z.infer<typeof memberRegisterSchema>;
+export type ThemeSettingsInput = z.infer<typeof themeSettingsSchema>;

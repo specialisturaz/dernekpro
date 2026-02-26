@@ -1,3 +1,30 @@
+// ===== THEME =====
+export interface ThemeColors {
+  primary: string;
+  primaryLight: string;
+  primaryDark: string;
+  secondary: string;
+  accent: string;
+  text: string;
+  textMuted: string;
+  bg: string;
+  bgAlt: string;
+  border: string;
+}
+
+export interface ThemeSettings {
+  light: ThemeColors;
+  dark: ThemeColors;
+  typography: {
+    fontPrimary: string;
+    fontHeading: string;
+  };
+  layout: {
+    borderRadius: number;
+  };
+  activePreset?: string;
+}
+
 // ===== TENANT (SaaS) =====
 export interface Tenant {
   id: string;
@@ -14,17 +41,7 @@ export interface Tenant {
 }
 
 export interface TenantSettings {
-  colors: {
-    primary: string;
-    primaryLight: string;
-    primaryDark: string;
-    secondary: string;
-    accent: string;
-  };
-  fonts: {
-    primary: string;
-    heading: string;
-  };
+  theme?: ThemeSettings;
   seo: {
     title: string;
     description: string;
