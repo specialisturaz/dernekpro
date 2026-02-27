@@ -19,13 +19,15 @@ ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_SITE_NAME
 ARG NEXT_PUBLIC_GOOGLE_ANALYTICS_ID
 ARG NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-ARG DATABASE_URL
 
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_NAME=$NEXT_PUBLIC_SITE_NAME
 ENV NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=$NEXT_PUBLIC_GOOGLE_ANALYTICS_ID
 ENV NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-ENV DATABASE_URL=$DATABASE_URL
+
+# Dummy DATABASE_URL for build - Prisma validation requires a non-empty URL
+# Actual DB connection happens only at runtime with the real DATABASE_URL
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 
 # Generate Prisma client
 RUN corepack enable pnpm && npx prisma generate
@@ -62,4 +64,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
+# DATABASE_URL must be provided at runtime via environment variables
 CMD ["node", "server.js"]

@@ -3,6 +3,9 @@ import { Nunito, Merriweather } from "next/font/google";
 import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
 
+// All pages are dynamic — this SaaS app depends on DB for every request
+export const dynamic = "force-dynamic";
+
 const nunito = Nunito({
   subsets: ["latin", "latin-ext"],
   variable: "--font-primary",
