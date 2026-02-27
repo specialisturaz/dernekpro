@@ -3,6 +3,10 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Arama",
   description: "DernekPro web sitesinde arama yapin. Haber, etkinlik, faaliyet ve daha fazlasini bulun.",
+  robots: { index: false, follow: true },
+  alternates: {
+    canonical: "/ara",
+  },
 };
 
 const ornekSonuclar = [
@@ -54,16 +58,20 @@ export default function AramaPage() {
   return (
     <main>
       {/* Arama Hero */}
-      <section className="bg-primary text-white py-16 md:py-24">
-        <div className="container mx-auto px-4">
+      <section className="relative bg-primary text-white pt-32 pb-10 md:pt-36 md:pb-12 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-white/[0.04] rounded-full blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/[0.03] rounded-full blur-3xl" />
+        </div>
+        <div className="container mx-auto px-4 relative">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold font-heading mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold font-heading mb-2">
               Arama
             </h1>
-            <p className="text-lg text-white/80 mb-8">
+            <p className="text-base md:text-lg text-white/80 max-w-2xl mx-auto">
               Haberler, etkinlikler, faaliyetler ve daha fazlasini arayin.
             </p>
-            <div className="relative">
+            <div className="relative mt-4">
               <input
                 type="search"
                 placeholder="Ne aramak istiyorsunuz?"

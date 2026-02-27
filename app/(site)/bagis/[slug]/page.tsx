@@ -21,9 +21,13 @@ export default function KampanyaDetayPage({
   return (
     <main>
       {/* Breadcrumb */}
-      <section className="bg-primary text-white py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <nav className="text-sm text-white/70 mb-4">
+      <section className="bg-primary text-white pt-28 pb-8 md:pt-32 md:pb-10 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-white/[0.04] rounded-full blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/[0.03] rounded-full blur-3xl" />
+        </div>
+        <div className="container mx-auto px-4 relative">
+          <nav className="text-sm text-white/70 mb-3">
             <a href="/" className="hover:text-white">
               Ana Sayfa
             </a>

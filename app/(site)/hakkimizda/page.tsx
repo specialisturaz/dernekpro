@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
+import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Hakkimizda",
   description:
     "Dernegimizin tarihcesi, misyonu, vizyonu ve basarilarimiz hakkinda detayli bilgi edinin.",
+  openGraph: {
+    title: "Hakkimizda",
+    description: "Dernegimizin tarihcesi, misyonu, vizyonu ve basarilarimiz hakkinda detayli bilgi edinin.",
+  },
+  alternates: {
+    canonical: "/hakkimizda",
+  },
 };
 
 const istatistikler = [
@@ -69,12 +77,90 @@ const tarihce = [
   },
 ];
 
-export default function HakkimizdaPage() {
+async function getPageFromDB() {
+  try {
+    const tenantId = process.env.DEFAULT_TENANT_ID;
+    const tenant = tenantId
+      ? await prisma.tenant.findUnique({ where: { id: tenantId }, select: { id: true } })
+      : await prisma.tenant.findFirst({ where: { isActive: true }, select: { id: true }, orderBy: { createdAt: "asc" } });
+
+    if (!tenant) return null;
+
+    const page = await prisma.page.findFirst({
+      where: {
+        slug: "hakkimizda",
+        tenantId: tenant.id,
+        isPublished: true,
+      },
+    });
+
+    return page;
+  } catch {
+    return null;
+  }
+}
+
+export default async function HakkimizdaPage() {
+  const dbPage = await getPageFromDB();
+
+  // If DB page exists, render dynamic content
+  if (dbPage) {
+    return (
+      <main>
+        {/* Hero / Breadcrumb */}
+        <section className="relative overflow-hidden bg-primary text-white pt-32 pb-10 md:pt-36 md:pb-12">
+          <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+            <div className="absolute -top-16 -right-16 w-64 h-64 bg-white/[0.04] rounded-full blur-3xl" />
+            <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/[0.03] rounded-full blur-3xl" />
+          </div>
+          <div className="relative container mx-auto px-4">
+            <nav className="text-sm text-white/70 mb-4">
+              <a href="/" className="hover:text-white">
+                Ana Sayfa
+              </a>
+              <span className="mx-2">/</span>
+              <span className="text-white">Hakkimizda</span>
+            </nav>
+            <h1 className="text-3xl md:text-4xl font-bold font-heading mb-2">
+              {dbPage.title}
+            </h1>
+            {dbPage.metaDesc && (
+              <p className="text-base md:text-lg text-white/80 max-w-2xl">
+                {dbPage.metaDesc}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* Dynamic Content */}
+        <section className="section-padding bg-background">
+          <div className="container mx-auto px-4">
+            <div className="prose prose-lg max-w-4xl mx-auto text-foreground">
+              <div
+                dangerouslySetInnerHTML={{ __html: dbPage.content }}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Custom CSS */}
+        {dbPage.customCss && (
+          <style dangerouslySetInnerHTML={{ __html: dbPage.customCss }} />
+        )}
+      </main>
+    );
+  }
+
+  // Fallback: hardcoded content
   return (
     <main>
       {/* Hero / Breadcrumb */}
-      <section className="bg-primary text-white py-16 md:py-24">
-        <div className="container mx-auto px-4">
+      <section className="relative overflow-hidden bg-primary text-white pt-32 pb-10 md:pt-36 md:pb-12">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-white/[0.04] rounded-full blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/[0.03] rounded-full blur-3xl" />
+        </div>
+        <div className="relative container mx-auto px-4">
           <nav className="text-sm text-white/70 mb-4">
             <a href="/" className="hover:text-white">
               Ana Sayfa
@@ -82,10 +168,10 @@ export default function HakkimizdaPage() {
             <span className="mx-2">/</span>
             <span className="text-white">Hakkimizda</span>
           </nav>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold font-heading mb-2">
             Hakkimizda
           </h1>
-          <p className="text-lg md:text-xl text-white/80 max-w-3xl">
+          <p className="text-base md:text-lg text-white/80 max-w-2xl">
             Toplumsal dayanisma ve yardimlasma amaciyla kurulan dernegimiz,
             binlerce gonullu ile birlikte topluma deger katmaya devam ediyor.
           </p>

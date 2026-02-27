@@ -37,6 +37,14 @@ model Tenant {
   slides       Slide[]
   membershipTypes MembershipType[]
   contacts     Contact[]
+  liveStreams  LiveStream[]
+  notifications Notification[]
+  emailTemplates EmailTemplate[]
+  tenantModules  TenantModule[]
+  branches       Branch[]
+  media          Media[]
+  sponsorChildren SponsorChild[]
+  bankAccounts   BankAccount[]
 
   @@map("tenants")
 }
@@ -130,6 +138,7 @@ model Member {
   dues         Due[]
   donations    Donation[]
   eventRegistrations EventRegistration[]
+  notificationReads  NotificationRead[]
 
   @@unique([tenantId, email])
   @@index([tenantId])
@@ -298,13 +307,15 @@ model EventRegistration {
 
 // ===== GALERI =====
 model GalleryAlbum {
-  id         String         @id @default(cuid())
-  tenantId   String         @map("tenant_id")
-  title      String
-  slug       String
-  coverImage String?        @map("cover_image")
-  createdAt  DateTime       @default(now()) @map("created_at")
-  updatedAt  DateTime       @updatedAt @map("updated_at")
+  id          String         @id @default(cuid())
+  tenantId    String         @map("tenant_id")
+  title       String
+  slug        String
+  coverImage  String?        @map("cover_image")
+  category    String?        @default("genel")
+  description String?
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
 
   // Relations
   tenant     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -342,9 +353,10 @@ model Campaign {
   targetAmount    Float     @map("target_amount")
   collectedAmount Float     @default(0) @map("collected_amount")
   deadline        DateTime?
-  isActive        Boolean   @default(true) @map("is_active")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  isActive        Boolean        @default(true) @map("is_active")
+  status          CampaignStatus @default(ACTIVE)
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
 
   // Relations
   tenant          Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -352,7 +364,14 @@ model Campaign {
 
   @@unique([tenantId, slug])
   @@index([tenantId])
+  @@index([tenantId, status])
   @@map("campaigns")
+}
+
+enum CampaignStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
 }
 
 model Donation {
@@ -471,6 +490,8 @@ model Page {
   metaDesc    String?  @map("meta_desc")
   isPublished Boolean  @default(false) @map("is_published")
   order       Int      @default(0)
+  sections    Json?    // Page builder section config JSON
+  customCss   String?  @map("custom_css")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -495,6 +516,13 @@ model Slide {
   buttonLink     String? @map("button_link")
   order          Int     @default(0)
   isActive       Boolean @default(true) @map("is_active")
+  badge          String?
+  bgColor        String? @map("bg_color")
+  accentColor    String? @map("accent_color")
+  statsLabel     String? @map("stats_label")
+  statsValue     String? @map("stats_value")
+  slideDate      String? @map("slide_date")
+  location       String?
 
   // Relations
   tenant         Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -521,4 +549,284 @@ model Contact {
   @@index([tenantId])
   @@index([isRead])
   @@map("contacts")
+}
+
+// ===== CANLI YAYIN =====
+model LiveStream {
+  id           String           @id @default(cuid())
+  tenantId     String           @map("tenant_id")
+  title        String
+  description  String?
+  youtubeUrl   String           @map("youtube_url")
+  thumbnailUrl String?          @map("thumbnail_url")
+  scheduledAt  DateTime         @map("scheduled_at")
+  startedAt    DateTime?        @map("started_at")
+  endedAt      DateTime?        @map("ended_at")
+  status       LiveStreamStatus @default(SCHEDULED)
+  notifyUsers  Boolean          @default(false) @map("notify_users")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  tenant       Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("live_streams")
+}
+
+enum LiveStreamStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+// ===== BILDIRIMLER =====
+model Notification {
+  id              String             @id @default(cuid())
+  tenantId        String             @map("tenant_id")
+  title           String
+  message         String
+  type            NotificationType   @default(GENERAL)
+  link            String?
+  isGlobal        Boolean            @default(true) @map("is_global")
+  sendEmail       Boolean            @default(false) @map("send_email")
+  emailTemplateId String?            @map("email_template_id")
+  sentAt          DateTime?          @map("sent_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+
+  // Relations
+  tenant          Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  emailTemplate   EmailTemplate?     @relation(fields: [emailTemplateId], references: [id])
+  reads           NotificationRead[]
+
+  @@index([tenantId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  GENERAL
+  LIVE_STREAM
+  EVENT
+  ANNOUNCEMENT
+  CAMPAIGN
+  SYSTEM
+}
+
+model NotificationRead {
+  id             String       @id @default(cuid())
+  notificationId String       @map("notification_id")
+  memberId       String       @map("member_id")
+  readAt         DateTime     @default(now()) @map("read_at")
+
+  // Relations
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  member         Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, memberId])
+  @@index([memberId])
+  @@map("notification_reads")
+}
+
+// ===== E-POSTA SABLONLARI =====
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  name        String
+  subject     String
+  htmlContent String   @map("html_content")
+  variables   String[] @default([])
+  isDefault   Boolean  @default(false) @map("is_default")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  notifications Notification[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("email_templates")
+}
+
+// ===== MODUL YONETIMI =====
+model TenantModule {
+  id          String    @id @default(cuid())
+  tenantId    String    @map("tenant_id")
+  moduleCode  String    @map("module_code")
+  isActive    Boolean   @default(false) @map("is_active")
+  settings    Json      @default("{}")
+  activatedAt DateTime? @map("activated_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, moduleCode])
+  @@index([tenantId])
+  @@map("tenant_modules")
+}
+
+// ===== SUBE YONETIMI =====
+enum BranchType {
+  MERKEZ
+  SUBE
+  TEMSILCILIK
+  IRTIBAT_BUROSU
+}
+
+enum BranchStatus {
+  ACTIVE
+  PASSIVE
+  CLOSED
+}
+
+model Branch {
+  id              String       @id @default(cuid())
+  tenantId        String       @map("tenant_id")
+  name            String
+  slug            String
+  code            String?
+  type            BranchType   @default(SUBE)
+  status          BranchStatus @default(ACTIVE)
+
+  // Iletisim
+  phone           String?
+  email           String?
+  fax             String?
+
+  // Adres
+  address         String?
+  city            String?
+  district        String?
+  postalCode      String?      @map("postal_code")
+  latitude        Float?
+  longitude       Float?
+
+  // Baskan
+  presidentName   String?      @map("president_name")
+  presidentPhone  String?      @map("president_phone")
+  presidentEmail  String?      @map("president_email")
+  presidentPhoto  String?      @map("president_photo")
+
+  // Detay
+  workingHours    Json?        @map("working_hours")
+  socialMedia     Json?        @map("social_media")
+  gallery         String[]     @default([])
+  description     String?
+  foundedAt       DateTime?    @map("founded_at")
+  memberCount     Int          @default(0) @map("member_count")
+  order           Int          @default(0)
+
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  tenant          Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  messages        BranchMessage[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@map("branches")
+}
+
+model BranchMessage {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  branchId  String   @map("branch_id")
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  branch    Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([branchId])
+  @@index([isRead])
+  @@map("branch_messages")
+}
+
+// ===== MEDYA DOSYALARI =====
+model Media {
+  id           String   @id @default(cuid())
+  tenantId     String   @map("tenant_id")
+  fileName     String   @map("file_name")
+  originalName String   @map("original_name")
+  mimeType     String   @map("mime_type")
+  size         Int
+  url          String
+  alt          String   @default("")
+  folder       String   @default("general")
+  uploadedBy   String?  @map("uploaded_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tenantId, folder])
+  @@map("media")
+}
+
+// ===== COCUK SPONSORLUK =====
+model SponsorChild {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  name        String
+  age         Int
+  gender      String   @default("male")
+  country     String   @default("Türkiye")
+  city        String?
+  story       String   @db.Text
+  photoUrl    String   @map("photo_url")
+  goalAmount  Float    @map("goal_amount")
+  collected   Float    @default(0)
+  isActive    Boolean  @default(true) @map("is_active")
+  isFeatured  Boolean  @default(false) @map("is_featured")
+  category    String   @default("giydirme")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tenantId, isActive])
+  @@map("sponsor_children")
+}
+
+// ===== BANKA HESAPLARI =====
+model BankAccount {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  bankName    String   @map("bank_name")
+  bankLogo    String?  @map("bank_logo")
+  accountName String   @map("account_name")
+  iban        String
+  accountNo   String?  @map("account_no")
+  branchName  String?  @map("branch_name")
+  branchCode  String?  @map("branch_code")
+  currency    String   @default("TRY")
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  order       Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("bank_accounts")
 }

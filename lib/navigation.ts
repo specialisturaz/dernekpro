@@ -19,35 +19,27 @@ export const mainNavigation: MenuItem[] = [
     label: "Faaliyetler",
     href: "/faaliyetler",
     order: 3,
+    children: [
+      { id: "3-1", label: "Faaliyetlerimiz", href: "/faaliyetler", order: 1 },
+      { id: "3-2", label: "Haberler", href: "/haberler", order: 2 },
+      { id: "3-3", label: "Etkinlikler", href: "/etkinlikler", order: 3 },
+      { id: "3-4", label: "Galeri", href: "/galeri", order: 4 },
+    ],
   },
   {
     id: "4",
-    label: "Haberler",
-    href: "/haberler",
+    label: "Destek Ol",
+    href: "/bagis",
     order: 4,
+    children: [
+      { id: "4-1", label: "Bağış Yap", href: "/bagis", order: 1 },
+      { id: "4-2", label: "Hesap Numaralarımız", href: "/hesaplar", order: 2 },
+    ],
   },
   {
     id: "5",
-    label: "Etkinlikler",
-    href: "/etkinlikler",
-    order: 5,
-  },
-  {
-    id: "6",
-    label: "Galeri",
-    href: "/galeri",
-    order: 6,
-  },
-  {
-    id: "7",
-    label: "Bağış Yap",
-    href: "/bagis",
-    order: 7,
-  },
-  {
-    id: "8",
     label: "İletişim",
     href: "/iletisim",
-    order: 8,
+    order: 5,
   },
 ];

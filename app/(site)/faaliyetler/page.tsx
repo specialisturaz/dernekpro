@@ -1,213 +1,134 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Faaliyetler",
-  description:
-    "Dernegimizin gerceklestirdigi projeler, kampanyalar ve toplumsal faaliyetleri kesfet.",
+  description: "Derneğimizin gerçekleştirdiği ve devam eden faaliyetler.",
+  openGraph: {
+    title: "Faaliyetler",
+    description: "Derneğimizin gerçekleştirdiği ve devam eden faaliyetler.",
+  },
+  alternates: {
+    canonical: "/faaliyetler",
+  },
 };
 
-const kategoriler = [
-  "Tumu",
-  "Egitim",
-  "Saglik",
-  "Cevre",
-  "Sosyal Yardim",
-  "Kultur",
-  "Spor",
-];
-
-const faaliyetler = [
-  {
-    slug: "egitim-bursu-programi",
-    baslik: "Egitim Bursu Programi",
-    kategori: "Egitim",
-    ozet:
-      "Ihtiyac sahibi ogrencilere yonelik kapsamli burs programimiz ile egitimde firsat esitligi sagliyoruz.",
-    tarih: "2024-01-15",
-    gorsel: "/images/placeholder-activity.jpg",
-    durum: "Devam Ediyor",
-  },
-  {
-    slug: "saglik-taramasi-kampanyasi",
-    baslik: "Ucretsiz Saglik Taramasi",
-    kategori: "Saglik",
-    ozet:
-      "Kirsal bolgelerde ucretsiz saglik taramasi yaparak vatandaslarimizin sagligina kavusmasina destek oluyoruz.",
-    tarih: "2024-02-20",
-    gorsel: "/images/placeholder-activity.jpg",
-    durum: "Tamamlandi",
-  },
-  {
-    slug: "agac-dikme-festivali",
-    baslik: "10.000 Agac Dikme Festivali",
-    kategori: "Cevre",
-    ozet:
-      "Sehirlerimizi yesillendirmek icin duzenledigimiz agac dikme kampanyamiza siz de katilin.",
-    tarih: "2024-03-21",
-    gorsel: "/images/placeholder-activity.jpg",
-    durum: "Devam Ediyor",
-  },
-  {
-    slug: "ramazan-yardimlari",
-    baslik: "Ramazan Yardim Paketi Dagitimi",
-    kategori: "Sosyal Yardim",
-    ozet:
-      "Ramazan ayinda ihtiyac sahibi ailelere gida paketi ve iftar yemegi dagitimi gerceklestiriyoruz.",
-    tarih: "2024-03-10",
-    gorsel: "/images/placeholder-activity.jpg",
-    durum: "Tamamlandi",
-  },
-  {
-    slug: "kultur-gezisi-programi",
-    baslik: "Tarihi ve Kulturel Gezi Programi",
-    kategori: "Kultur",
-    ozet:
-      "Genclerimize yonelik tarihi mekan ziyaretleri ve kulturel gezi programlari duzenliyoruz.",
-    tarih: "2024-04-05",
-    gorsel: "/images/placeholder-activity.jpg",
-    durum: "Planlanıyor",
-  },
-  {
-    slug: "genclik-spor-turnuvasi",
-    baslik: "Genclik Spor Turnuvasi",
-    kategori: "Spor",
-    ozet:
-      "Gencler arasi futbol, basketbol ve voleybol turnuvalari duzenleyerek spor bilincini yayginlastiriyoruz.",
-    tarih: "2024-05-15",
-    gorsel: "/images/placeholder-activity.jpg",
-    durum: "Planlanıyor",
-  },
-];
-
-function getDurumRenk(durum: string) {
-  switch (durum) {
-    case "Devam Ediyor":
-      return "bg-green-100 text-green-800";
-    case "Tamamlandi":
-      return "bg-blue-100 text-blue-800";
-    case "Planlanıyor":
-      return "bg-yellow-100 text-yellow-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
+interface Post {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  coverImage: string | null;
+  tags: string[];
+  isFeatured: boolean;
+  publishedAt: string | null;
+  category: { id: string; name: string; slug: string } | null;
 }
 
-export default function FaaliyetlerPage() {
+async function getFaaliyetler(): Promise<Post[]> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const res = await fetch(`${baseUrl}/api/posts?type=ACTIVITY&limit=50`, {
+      next: { revalidate: 60 },
+    });
+    const json = await res.json();
+    if (json.success) return json.data;
+  } catch {
+    // fallback
+  }
+  return [];
+}
+
+export default async function FaaliyetlerPage() {
+  const faaliyetler = await getFaaliyetler();
+
   return (
     <main>
-      {/* Hero / Breadcrumb */}
-      <section className="bg-primary text-white py-16 md:py-20">
-        <div className="container mx-auto px-4">
-          <nav className="text-sm text-white/70 mb-4">
-            <a href="/" className="hover:text-white">
-              Ana Sayfa
-            </a>
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-primary-dark to-primary text-white py-20 md:py-24 relative overflow-hidden">
+        <div className="absolute top-10 right-10 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 left-10 w-48 h-48 bg-secondary/10 rounded-full blur-3xl" />
+        <div className="container mx-auto px-6 relative">
+          <nav className="text-sm text-white/60 mb-4">
+            <Link href="/" className="hover:text-white transition-colors">Ana Sayfa</Link>
             <span className="mx-2">/</span>
             <span className="text-white">Faaliyetler</span>
           </nav>
-          <h1 className="text-4xl md:text-5xl font-bold font-heading mb-4">
-            Faaliyetlerimiz
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold font-heading mb-4">Faaliyetlerimiz</h1>
           <p className="text-lg text-white/80 max-w-2xl">
-            Egitimden sagliga, cevreden sosyal yardima kadar genis bir yelpazede
-            topluma deger katan projelerimizi inceleyin.
+            Eğitimden sağlığa, gıdadan barınmaya kadar geniş bir yelpazede topluma değer katan projelerimizi inceleyin.
           </p>
-        </div>
-      </section>
-
-      {/* Filtre */}
-      <section className="bg-background border-b border-border sticky top-0 z-30">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {kategoriler.map((kat) => (
-              <button
-                key={kat}
-                className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
-                  kat === "Tumu"
-                    ? "bg-primary text-white"
-                    : "bg-background-alt text-muted hover:bg-primary/10 hover:text-primary border border-border"
-                }`}
-              >
-                {kat}
-              </button>
-            ))}
-          </div>
         </div>
       </section>
 
       {/* Faaliyet Grid */}
       <section className="section-padding bg-background-alt">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {faaliyetler.map((faaliyet) => (
-              <a
-                key={faaliyet.slug}
-                href={`/faaliyetler/${faaliyet.slug}`}
-                className="card group"
-              >
-                {/* Gorsel Placeholder */}
-                <div className="aspect-video bg-primary/10 relative overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <svg
-                      className="w-16 h-16 text-primary/20"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                    </svg>
+        <div className="container mx-auto px-6">
+          {faaliyetler.length === 0 ? (
+            <div className="text-center py-20">
+              <svg className="w-16 h-16 text-muted/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h2 className="text-xl font-bold text-foreground mb-2">Henüz faaliyet bulunmuyor</h2>
+              <p className="text-muted">Yakında faaliyetlerimiz burada yayınlanacak.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {faaliyetler.map((faaliyet) => (
+                <Link
+                  key={faaliyet.id}
+                  href={`/faaliyetler/${faaliyet.slug}`}
+                  className="card group hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className="aspect-video relative overflow-hidden bg-gray-100">
+                    {faaliyet.coverImage ? (
+                      <img
+                        src={faaliyet.coverImage}
+                        alt={faaliyet.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                        <svg className="w-10 h-10 text-primary/20" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                        </svg>
+                      </div>
+                    )}
                   </div>
-                  <div className="absolute top-3 right-3">
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-full ${getDurumRenk(
-                        faaliyet.durum
-                      )}`}
-                    >
-                      {faaliyet.durum}
-                    </span>
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      {faaliyet.category && (
+                        <span className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                          {faaliyet.category.name}
+                        </span>
+                      )}
+                      {faaliyet.publishedAt && (
+                        <span className="text-xs text-muted">
+                          {new Date(faaliyet.publishedAt).toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" })}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-bold font-heading text-foreground mb-2 group-hover:text-primary transition-colors">
+                      {faaliyet.title}
+                    </h3>
+                    {faaliyet.excerpt && (
+                      <p className="text-muted text-sm line-clamp-3">{faaliyet.excerpt}</p>
+                    )}
+                    <div className="mt-4 flex items-center text-primary text-sm font-semibold group-hover:gap-2 transition-all">
+                      Detayları Gör
+                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
                   </div>
-                </div>
+                </Link>
+              ))}
+            </div>
+          )}
 
-                <div className="p-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-1 rounded-full">
-                      {faaliyet.kategori}
-                    </span>
-                    <span className="text-xs text-muted">
-                      {new Date(faaliyet.tarih).toLocaleDateString("tr-TR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-bold font-heading text-foreground mb-2 group-hover:text-primary transition-colors">
-                    {faaliyet.baslik}
-                  </h3>
-                  <p className="text-muted text-sm line-clamp-3">
-                    {faaliyet.ozet}
-                  </p>
-                </div>
-              </a>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          <div className="flex justify-center items-center gap-2 mt-12">
-            <button className="px-4 py-2 rounded border border-border text-muted hover:bg-background transition-colors">
-              Onceki
-            </button>
-            <button className="px-4 py-2 rounded bg-primary text-white font-semibold">
-              1
-            </button>
-            <button className="px-4 py-2 rounded border border-border text-muted hover:bg-background transition-colors">
-              2
-            </button>
-            <button className="px-4 py-2 rounded border border-border text-muted hover:bg-background transition-colors">
-              3
-            </button>
-            <button className="px-4 py-2 rounded border border-border text-muted hover:bg-background transition-colors">
-              Sonraki
-            </button>
+          <div className="text-center mt-8">
+            <p className="text-sm text-muted">{faaliyetler.length} faaliyet gösteriliyor</p>
           </div>
         </div>
       </section>

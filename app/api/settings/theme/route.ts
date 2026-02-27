@@ -7,22 +7,40 @@ export const dynamic = "force-dynamic";
 
 // GET /api/settings/theme — public endpoint (no auth), cacheable
 export async function GET() {
-  const tenantId = process.env.DEFAULT_TENANT_ID || "default";
+  try {
+    const tenantId = process.env.DEFAULT_TENANT_ID;
 
-  const tenant = await prisma.tenant.findUnique({
-    where: { id: tenantId },
-    select: { settings: true },
-  });
+    const tenant = tenantId
+      ? await prisma.tenant.findUnique({
+          where: { id: tenantId },
+          select: { settings: true },
+        })
+      : await prisma.tenant.findFirst({
+          where: { isActive: true },
+          select: { settings: true },
+          orderBy: { createdAt: "asc" },
+        });
 
-  const settings = (tenant?.settings as Record<string, unknown>) || {};
-  const theme: ThemeSettings = (settings.theme as ThemeSettings) || DEFAULT_THEME;
+    const settings = (tenant?.settings as Record<string, unknown>) || {};
+    const theme: ThemeSettings = (settings.theme as ThemeSettings) || DEFAULT_THEME;
 
-  return NextResponse.json(
-    { success: true, data: theme },
-    {
-      headers: {
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
-      },
-    }
-  );
+    return NextResponse.json(
+      { success: true, data: theme },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30",
+        },
+      }
+    );
+  } catch (err) {
+    console.error("Theme API error:", err);
+    return NextResponse.json(
+      { success: true, data: DEFAULT_THEME },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30",
+        },
+      }
+    );
+  }
 }

@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
+import { useAdminNav } from "@/hooks/useAdminNav";
 import AdminSidebar, { MobileSidebar } from "./AdminSidebar";
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { fetchUser } = useAuthStore();
+  const { navGroups, loading } = useAdminNav();
 
   useEffect(() => {
     fetchUser();
@@ -15,8 +17,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen bg-background-alt flex">
-      <AdminSidebar />
-      <MobileSidebar open={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <AdminSidebar navGroups={navGroups} loading={loading} />
+      <MobileSidebar open={mobileOpen} onClose={() => setMobileOpen(false)} navGroups={navGroups} />
 
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Top Bar */}

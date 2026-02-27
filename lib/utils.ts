@@ -61,3 +61,10 @@ export function getProgressPercentage(collected: number, target: number): number
   if (target <= 0) return 0;
   return Math.min(100, Math.round((collected / target) * 100));
 }
+
+export function sanitizeMapEmbed(html: string): string {
+  const match = html.match(/<iframe[^>]*src="(https:\/\/www\.google\.com\/maps\/embed[^"]*)"[^>]*><\/iframe>/i);
+  if (!match) return "";
+  const src = match[1];
+  return `<iframe src="${src}" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
+}

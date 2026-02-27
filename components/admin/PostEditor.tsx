@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import ImageUpload from "./ImageUpload";
+import RichEditor from "./RichEditor";
 
 interface PostEditorProps {
   postId?: string;
@@ -196,14 +198,11 @@ export default function PostEditor({ postId, postType, backUrl, typeLabelTr }: P
             <label className="text-sm font-semibold text-foreground mb-1.5 block">
               İçerik <span className="text-red-500">*</span>
             </label>
-            <textarea
-              rows={16}
+            <RichEditor
               value={form.content}
-              onChange={(e) => updateField("content", e.target.value)}
+              onChange={(html) => updateField("content", html)}
               placeholder="Haber içeriğini buraya yazın..."
-              className={`${inputClass} resize-y font-mono text-sm`}
             />
-            <p className="text-xs text-muted mt-2">HTML desteklenir. Rich text editör daha sonra eklenecektir.</p>
           </div>
         </div>
 
@@ -252,21 +251,12 @@ export default function PostEditor({ postId, postType, backUrl, typeLabelTr }: P
 
           {/* Cover Image */}
           <div className="card p-6">
-            <h3 className="font-bold text-foreground mb-4">Kapak Görseli</h3>
-            <input
-              type="text"
+            <ImageUpload
               value={form.coverImage}
-              onChange={(e) => updateField("coverImage", e.target.value)}
-              placeholder="Görsel URL'si girin"
-              className={inputClass}
+              onChange={(url) => updateField("coverImage", url)}
+              folder="posts"
+              label="Kapak Gorseli"
             />
-            {form.coverImage && (
-              <div className="mt-3 rounded-lg overflow-hidden border border-border">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={form.coverImage} alt="Kapak" className="w-full h-32 object-cover" />
-              </div>
-            )}
-            <p className="text-xs text-muted mt-2">Dosya yükleme daha sonra eklenecektir.</p>
           </div>
         </div>
       </div>

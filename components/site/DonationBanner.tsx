@@ -1,54 +1,66 @@
 import Link from "next/link";
+import { getDefaultTenant } from "@/lib/tenant";
+import { isModuleActive } from "@/lib/modules/utils";
 
-export default function DonationBanner() {
+export default async function DonationBanner() {
+  const tenant = await getDefaultTenant();
+  const campaignsActive = tenant ? await isModuleActive(tenant.id, "donations") : true;
+
   return (
-    <section className="relative py-20 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-secondary to-secondary/80" />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+    <section className="py-6 bg-primary-dark">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Left: Text */}
+          <div className="flex items-center gap-3 text-center md:text-left">
+            <div className="hidden md:flex w-10 h-10 rounded-full bg-white/15 items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-base md:text-lg font-heading font-bold text-white">
+                Bir Hayata Dokunmak İster Misiniz?
+              </h3>
+              <p className="text-white/70 text-xs mt-0.5">
+                {campaignsActive
+                  ? "Bağışlarınız ihtiyaç sahiplerine umut oluyor."
+                  : "Banka havalesi ile destek olabilirsiniz."}
+              </p>
+            </div>
+          </div>
 
-      <div className="relative container mx-auto px-4 text-center text-white">
-        <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4">
-          Bir Hayata Dokunmak İster Misiniz?
-        </h2>
-        <p className="text-white/80 max-w-xl mx-auto mb-8 text-lg">
-          Bağışlarınız ihtiyaç sahiplerine umut oluyor. Hızlı ve güvenli bağış
-          yapabilirsiniz.
-        </p>
-
-        {/* Quick Donation Amounts */}
-        <div className="flex flex-wrap justify-center gap-3 mb-8">
-          {[50, 100, 250, 500].map((amount) => (
-            <Link
-              key={amount}
-              href={`/bagis?amount=${amount}`}
-              className="px-6 py-3 bg-white/10 backdrop-blur border border-white/20 rounded-xl text-lg font-bold hover:bg-white/20 transition-colors"
-            >
-              {amount} ₺
-            </Link>
-          ))}
-          <Link
-            href="/bagis"
-            className="px-6 py-3 bg-white text-secondary rounded-xl text-lg font-bold hover:bg-white/90 transition-colors"
-          >
-            Özel Tutar
-          </Link>
-        </div>
-
-        <div className="flex items-center justify-center gap-6 text-sm text-white/60">
-          <span className="flex items-center gap-1.5">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            256-bit SSL Güvenli Ödeme
-          </span>
-          <span className="flex items-center gap-1.5">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            iyzico Güvencesi
-          </span>
+          {/* Right: Action */}
+          {campaignsActive ? (
+            <div className="flex items-center gap-2 flex-wrap justify-center flex-shrink-0">
+              {[50, 100, 250].map((amount) => (
+                <Link
+                  key={amount}
+                  href={`/bagis?amount=${amount}`}
+                  className="px-3.5 py-1.5 bg-white/10 border border-white/20 rounded-lg text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+                >
+                  {amount} ₺
+                </Link>
+              ))}
+              <Link
+                href="/bagis"
+                className="px-5 py-1.5 bg-white text-primary-dark rounded-lg text-sm font-bold hover:bg-white/90 transition-colors"
+              >
+                Bağış Yap
+              </Link>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <Link
+                href="/hesaplar"
+                className="px-5 py-1.5 bg-white text-primary-dark rounded-lg text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                Hesap Numaraları
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </section>

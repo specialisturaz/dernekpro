@@ -5,6 +5,13 @@ export const metadata: Metadata = {
   title: "Üye Ol",
   description:
     "Derneğimize üye olarak toplumsal değişimin bir parçası olun. Üyelik formu ve avantajları.",
+  openGraph: {
+    title: "Üye Ol",
+    description: "Derneğimize üye olarak toplumsal değişimin bir parçası olun.",
+  },
+  alternates: {
+    canonical: "/uye-ol",
+  },
 };
 
 const avantajlar = [
@@ -38,9 +45,13 @@ export default function UyeOlPage() {
   return (
     <main>
       {/* Hero */}
-      <section className="bg-primary text-white py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <nav className="text-sm text-white/70 mb-4">
+      <section className="relative bg-primary text-white pt-32 pb-10 md:pt-36 md:pb-12 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-white/[0.04] rounded-full blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/[0.03] rounded-full blur-3xl" />
+        </div>
+        <div className="container mx-auto px-4 relative">
+          <nav className="text-sm text-white/70 mb-3">
             <a href="/" className="hover:text-white">
               Ana Sayfa
             </a>
@@ -48,10 +59,10 @@ export default function UyeOlPage() {
             <span className="text-white">Üye Ol</span>
           </nav>
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold font-heading mb-2">
               Ailemize Katılın
             </h1>
-            <p className="text-lg md:text-xl text-white/80">
+            <p className="text-base md:text-lg text-white/80 max-w-2xl">
               2.500+ aktif üyemizle birlikte toplumsal değişimin bir parçası
               olun. Üyelik başvurunuzu şimdi yapın.
             </p>

@@ -1,173 +1,162 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { generateArticleJsonLd, generateBreadcrumbJsonLd, SITE_URL } from "@/lib/seo";
+import JsonLd from "@/components/site/JsonLd";
 
-export const metadata: Metadata = {
-  title: "Haber Detay",
-  description: "Haber iceriginin detayli sayfasi.",
-};
+interface Post {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  coverImage: string | null;
+  tags: string[];
+  publishedAt: string | null;
+  category: { id: string; name: string; slug: string } | null;
+  author: { id: string; name: string } | null;
+}
 
-const ilgiliHaberler = [
-  {
-    slug: "yillik-genel-kurul-toplantisi",
-    baslik: "Yillik Genel Kurul Toplantisi Gerceklestirildi",
-    tarih: "2024-01-20",
-    kategori: "Kurumsal",
-  },
-  {
-    slug: "gonullu-egitim-programi",
-    baslik: "Yeni Gonullu Egitim Programi Duyuruldu",
-    tarih: "2024-01-10",
-    kategori: "Egitim",
-  },
-  {
-    slug: "deprem-yardim-kampanyasi-sonuclari",
-    baslik: "Deprem Yardim Kampanyasi Sonuclari Aciklandi",
-    tarih: "2024-01-05",
-    kategori: "Yardim",
-  },
-];
+interface RelatedPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  coverImage: string | null;
+  publishedAt: string | null;
+  category: { name: string } | null;
+}
 
-export default function HaberDetayPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+async function getHaber(slug: string): Promise<{ post: Post; related: RelatedPost[] } | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const res = await fetch(`${baseUrl}/api/posts/${slug}?type=NEWS`, { next: { revalidate: 60 } });
+    const json = await res.json();
+    if (json.success) return { post: json.data, related: json.related || [] };
+  } catch {
+    // fallback
+  }
+  return null;
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const result = await getHaber(params.slug);
+  if (!result) return { title: "Haber Bulunamadı" };
+  const post = result.post;
+  return {
+    title: post.title,
+    description: post.excerpt || undefined,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || undefined,
+      type: "article",
+      ...(post.publishedAt && { publishedTime: post.publishedAt }),
+      ...(post.coverImage && { images: [{ url: post.coverImage, width: 1200, height: 630, alt: post.title }] }),
+    },
+    alternates: {
+      canonical: `${SITE_URL}/haberler/${params.slug}`,
+    },
+  };
+}
+
+export default async function HaberDetayPage({ params }: { params: { slug: string } }) {
+  const result = await getHaber(params.slug);
+  if (!result) notFound();
+
+  const { post, related } = result;
+
+  const articleJsonLd = generateArticleJsonLd({
+    title: post.title,
+    description: post.excerpt || "",
+    url: `${SITE_URL}/haberler/${post.slug}`,
+    image: post.coverImage || `${SITE_URL}/images/og-default.jpg`,
+    publishedTime: post.publishedAt || new Date().toISOString(),
+    author: post.author?.name || "DernekPro",
+  });
+
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+    { name: "Ana Sayfa", href: "/" },
+    { name: "Haberler", href: "/haberler" },
+    { name: post.title, href: `/haberler/${post.slug}` },
+  ]);
+
   return (
     <main>
+      <JsonLd data={articleJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
       {/* Breadcrumb */}
-      <section className="bg-primary text-white py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <nav className="text-sm text-white/70 mb-4">
-            <a href="/" className="hover:text-white">
-              Ana Sayfa
-            </a>
+      <section className="bg-primary text-white pt-28 pb-8 md:pt-32 md:pb-10 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-white/[0.04] rounded-full blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/[0.03] rounded-full blur-3xl" />
+        </div>
+        <div className="container mx-auto px-4 relative">
+          <nav className="text-sm text-white/70 mb-3">
+            <Link href="/" className="hover:text-white">Ana Sayfa</Link>
             <span className="mx-2">/</span>
-            <a href="/haberler" className="hover:text-white">
-              Haberler
-            </a>
+            <Link href="/haberler" className="hover:text-white">Haberler</Link>
             <span className="mx-2">/</span>
-            <span className="text-white">{params.slug}</span>
+            <span className="text-white">{post.title}</span>
           </nav>
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">
-              Duyuru
-            </span>
+            {post.category && (
+              <span className="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">
+                {post.category.name}
+              </span>
+            )}
           </div>
-          <h1 className="text-3xl md:text-5xl font-bold font-heading mb-4">
-            2024 Egitim Bursu Basvurulari Basladi
-          </h1>
+          <h1 className="text-3xl md:text-5xl font-bold font-heading mb-4">{post.title}</h1>
           <div className="flex flex-wrap items-center gap-4 text-white/70 text-sm">
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              28 Ocak 2024
-            </span>
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              DernekPro Yonetim
-            </span>
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              5 dk okuma
-            </span>
+            {post.publishedAt && (
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {new Date(post.publishedAt).toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" })}
+              </span>
+            )}
+            {post.author && (
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                {post.author.name}
+              </span>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Icerik */}
+      {/* İçerik */}
       <section className="section-padding bg-background">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Makale */}
             <article className="lg:col-span-2">
-              {/* Gorsel */}
-              <div className="aspect-video bg-primary/5 rounded-[var(--border-radius)] mb-8 flex items-center justify-center border border-border">
-                <svg className="w-20 h-20 text-primary/20" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                </svg>
-              </div>
-
-              <div className="prose prose-lg max-w-none">
-                <p className="text-lg text-muted leading-relaxed mb-6">
-                  Dernegimizin 2024 yili egitim bursu basvurulari 1 Subat itibariyle resmi
-                  olarak baslamistir. Universite ve lise ogrencilerine yonelik hazirlanan
-                  burs programi icin son basvuru tarihi 28 Subat 2024 olarak belirlenmistir.
-                </p>
-
-                <h2 className="text-2xl font-bold font-heading text-foreground mb-4 mt-8">
-                  Basvuru Sartlari
-                </h2>
-                <p className="text-muted leading-relaxed mb-4">
-                  Burs programina basvurmak isteyen ogrencilerin asagidaki sartlari
-                  tasimasi gerekmektedir:
-                </p>
-                <ul className="space-y-2 mb-6">
-                  {[
-                    "T.C. vatandasi olmak",
-                    "Universite veya lise ogrencisi olmak",
-                    "Genel not ortalamasinin 2.5 ve uzeri olmasi",
-                    "Ailenin yillik gelirinin belirli bir sinirin altinda olmasi",
-                    "Baska bir kurumdan burs almiyor olmak",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3">
-                      <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                      <span className="text-muted">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <h2 className="text-2xl font-bold font-heading text-foreground mb-4 mt-8">
-                  Basvuru Sureci
-                </h2>
-                <p className="text-muted leading-relaxed mb-4">
-                  Basvurular online olarak dernegimizin web sitesi uzerinden
-                  yapilabilecektir. Basvuru formu doldurulduktan sonra gerekli belgeler
-                  sisteme yuklenmelidir. Degerlendirme komisyonu, basvurulari inceleyerek
-                  mart ayi icerisinde sonuclari aciklayacaktir.
-                </p>
-
-                <blockquote className="border-l-4 border-primary pl-6 py-2 my-8 bg-accent rounded-r-[var(--border-radius)]">
-                  <p className="text-foreground italic mb-2">
-                    &ldquo;Her ogrencinin kaliteli egitime erisim hakki vardir.
-                    Burs programimiz ile bu hakki gerceklestirmek icin calismaya
-                    devam ediyoruz.&rdquo;
-                  </p>
-                  <cite className="text-muted text-sm not-italic">
-                    — Ahmet Yilmaz, Genel Baskan
-                  </cite>
-                </blockquote>
-
-                <h2 className="text-2xl font-bold font-heading text-foreground mb-4 mt-8">
-                  Onemli Tarihler
-                </h2>
-                <div className="bg-background-alt rounded-[var(--border-radius)] p-6 border border-border">
-                  <div className="grid gap-3">
-                    {[
-                      { tarih: "1 Subat 2024", olay: "Basvurularin baslamasi" },
-                      { tarih: "28 Subat 2024", olay: "Son basvuru tarihi" },
-                      { tarih: "1-15 Mart 2024", olay: "Degerlendirme sureci" },
-                      { tarih: "20 Mart 2024", olay: "Sonuclarin aciklanmasi" },
-                      { tarih: "1 Nisan 2024", olay: "Burs odemelerinin baslamasi" },
-                    ].map((item) => (
-                      <div key={item.tarih} className="flex items-center gap-4">
-                        <span className="text-sm font-bold text-primary min-w-[140px]">
-                          {item.tarih}
-                        </span>
-                        <span className="text-muted text-sm">{item.olay}</span>
-                      </div>
-                    ))}
-                  </div>
+              {post.coverImage && (
+                <div className="aspect-video rounded-[var(--border-radius)] mb-8 overflow-hidden border border-border">
+                  <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
                 </div>
-              </div>
+              )}
+              <div
+                className="prose prose-lg max-w-none text-muted leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
 
-              {/* Paylas */}
+              {/* Tags */}
+              {post.tags.length > 0 && (
+                <div className="mt-8 pt-6 border-t border-border flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span key={tag} className="text-xs bg-background-alt text-muted px-3 py-1 rounded-full border border-border">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Paylaş */}
               <div className="mt-10 pt-8 border-t border-border">
                 <div className="flex items-center justify-between">
-                  <span className="text-foreground font-semibold">Bu haberi paylas:</span>
+                  <span className="text-foreground font-semibold">Bu haberi paylaş:</span>
                   <div className="flex gap-3">
                     {["Facebook", "Twitter", "WhatsApp", "LinkedIn"].map((p) => (
                       <button
@@ -185,42 +174,30 @@ export default function HaberDetayPage({
 
             {/* Sidebar */}
             <aside className="space-y-6">
-              <div className="card p-6">
-                <h3 className="text-lg font-bold font-heading text-foreground mb-4">
-                  Ilgili Haberler
-                </h3>
-                <div className="space-y-4">
-                  {ilgiliHaberler.map((haber) => (
-                    <a
-                      key={haber.slug}
-                      href={`/haberler/${haber.slug}`}
-                      className="block group"
-                    >
-                      <span className="text-xs text-muted">
-                        {new Date(haber.tarih).toLocaleDateString("tr-TR", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </span>
-                      <h4 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors mt-1">
-                        {haber.baslik}
-                      </h4>
-                      {haber !== ilgiliHaberler[ilgiliHaberler.length - 1] && (
-                        <hr className="border-border mt-4" />
-                      )}
-                    </a>
-                  ))}
+              {related.length > 0 && (
+                <div className="card p-6">
+                  <h3 className="text-lg font-bold font-heading text-foreground mb-4">İlgili Haberler</h3>
+                  <div className="space-y-4">
+                    {related.map((haber, i) => (
+                      <Link key={haber.id} href={`/haberler/${haber.slug}`} className="block group">
+                        {haber.publishedAt && (
+                          <span className="text-xs text-muted">
+                            {new Date(haber.publishedAt).toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" })}
+                          </span>
+                        )}
+                        <h4 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors mt-1">
+                          {haber.title}
+                        </h4>
+                        {i < related.length - 1 && <hr className="border-border mt-4" />}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="card p-6 bg-accent">
-                <h3 className="text-lg font-bold font-heading text-foreground mb-2">
-                  E-Bulten Aboneligi
-                </h3>
-                <p className="text-muted text-sm mb-4">
-                  Haberlerimizden aninda haberdar olmak icin e-bultenimize abone olun.
-                </p>
+                <h3 className="text-lg font-bold font-heading text-foreground mb-2">E-Bülten Aboneliği</h3>
+                <p className="text-muted text-sm mb-4">Haberlerimizden anında haberdar olmak için e-bültenimize abone olun.</p>
                 <div className="space-y-3">
                   <input
                     type="email"

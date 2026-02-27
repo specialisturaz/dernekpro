@@ -12,9 +12,9 @@ interface SEOParams {
   tags?: string[];
 }
 
-const SITE_NAME = "DernekPro";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://dernekpro.com";
-const DEFAULT_OG_IMAGE = "/images/og-default.jpg";
+export const SITE_NAME = "DernekPro";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://dernekpro.com";
+export const DEFAULT_OG_IMAGE = "/images/og-default.jpg";
 
 export function generateSEO({
   title,
@@ -162,3 +162,59 @@ export function generateEventJsonLd(params: {
     }),
   };
 }
+
+export function generateWebSiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: SITE_URL,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/ara?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+export function generateBreadcrumbJsonLd(
+  items: { name: string; href: string }[]
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: `${SITE_URL}${item.href}`,
+    })),
+  };
+}
+
+export function generateDonationJsonLd(params: {
+  name: string;
+  description: string;
+  url: string;
+  image?: string;
+  targetAmount?: number;
+  collectedAmount?: number;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "DonateAction",
+    name: params.name,
+    description: params.description,
+    url: params.url,
+    ...(params.image && { image: params.image }),
+    recipient: {
+      "@type": "NGO",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+  };
+}
+

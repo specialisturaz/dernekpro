@@ -40,8 +40,99 @@ export interface Tenant {
   isActive: boolean;
 }
 
+export interface MaintenanceSettings {
+  enabled: boolean;
+  message?: string;
+  allowedIps?: string[];
+}
+
+export interface StorageSettings {
+  provider: "local" | "r2";
+  r2?: {
+    accountId: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    bucketName: string;
+    publicUrl: string;
+  };
+}
+
+export interface FooterSettings {
+  brandName: string;
+  tagline: string;
+  copyright: string;
+  showNewsletter: boolean;
+  newsletterTitle: string;
+  newsletterDescription: string;
+}
+
+export interface StatItem {
+  label: string;
+  value: number;
+  suffix: string;
+  icon: string;
+}
+
+export interface StatsSettings {
+  title: string;
+  subtitle: string;
+  items: StatItem[];
+}
+
+export interface ContactPageSettings {
+  address: string;
+  phone: string;
+  email: string;
+  workingHours: string;
+  mapLat: number;
+  mapLng: number;
+  mapZoom: number;
+  mapEmbed?: string;
+  socialMedia: { platform: string; url: string }[];
+  faq: { question: string; answer: string }[];
+  // Sayfa içerikleri
+  heroTitle?: string;
+  heroDescription?: string;
+  formTitle?: string;
+  formDescription?: string;
+  formTopics?: string[];
+  mapTitle?: string;
+  mapDescription?: string;
+  socialTitle?: string;
+  socialDescription?: string;
+  ctaPrimaryText?: string;
+  ctaPrimaryLink?: string;
+  ctaSecondaryText?: string;
+  ctaSecondaryLink?: string;
+}
+
+export interface AboutSettings {
+  title: string;
+  subtitle: string;
+  description: string;
+  mission: string;
+  vision: string;
+  imageUrl: string;
+  badgeText: string;
+  badgeSubtext: string;
+}
+
+export interface LogoSettings {
+  logoUrl: string;
+  faviconUrl: string;
+  logoWidth: number;
+  logoHeight: number;
+}
+
 export interface TenantSettings {
   theme?: ThemeSettings;
+  maintenance?: MaintenanceSettings;
+  storage?: StorageSettings;
+  footer?: FooterSettings;
+  stats?: StatsSettings;
+  about?: AboutSettings;
+  logo?: LogoSettings;
+  contactPage?: ContactPageSettings;
   seo: {
     title: string;
     description: string;
@@ -152,6 +243,8 @@ export interface GalleryAlbum {
   title: string;
   slug: string;
   coverImage?: string;
+  category?: string;
+  description?: string;
   imageCount: number;
   createdAt: Date;
 }
@@ -206,6 +299,8 @@ export interface Due {
 export type PaymentMethod = "credit_card" | "bank_transfer" | "cash";
 export type DonationType = "general" | "zekat" | "fitre" | "sadaka" | "kurban" | "adak" | "akika";
 
+export type CampaignStatus = "ACTIVE" | "COMPLETED" | "PAUSED";
+
 export interface Campaign {
   id: string;
   tenantId: string;
@@ -217,6 +312,7 @@ export interface Campaign {
   collectedAmount: number;
   deadline?: Date;
   isActive: boolean;
+  status: CampaignStatus;
   createdAt: Date;
 }
 
@@ -277,6 +373,71 @@ export interface Page {
   seo?: SEOMeta;
   isPublished: boolean;
   order: number;
+  sections?: unknown;
+  customCss?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ===== CANLI YAYIN =====
+export type LiveStreamStatus = "SCHEDULED" | "LIVE" | "ENDED" | "CANCELLED";
+
+export interface LiveStream {
+  id: string;
+  tenantId: string;
+  title: string;
+  description?: string;
+  youtubeUrl: string;
+  thumbnailUrl?: string;
+  scheduledAt: Date;
+  startedAt?: Date;
+  endedAt?: Date;
+  status: LiveStreamStatus;
+  notifyUsers: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ===== BILDIRIM =====
+export type NotificationType =
+  | "GENERAL"
+  | "LIVE_STREAM"
+  | "EVENT"
+  | "ANNOUNCEMENT"
+  | "CAMPAIGN"
+  | "SYSTEM";
+
+export interface Notification {
+  id: string;
+  tenantId: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  link?: string;
+  isGlobal: boolean;
+  sendEmail: boolean;
+  emailTemplateId?: string;
+  sentAt?: Date;
+  createdAt: Date;
+  readCount?: number;
+}
+
+export interface NotificationRead {
+  id: string;
+  notificationId: string;
+  memberId: string;
+  readAt: Date;
+}
+
+// ===== E-POSTA SABLONU =====
+export interface EmailTemplate {
+  id: string;
+  tenantId: string;
+  name: string;
+  subject: string;
+  htmlContent: string;
+  variables: string[];
+  isDefault: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -304,6 +465,84 @@ export interface MenuItem {
   children?: MenuItem[];
   isExternal?: boolean;
   order: number;
+}
+
+// ===== SUBE (Branch) =====
+export type BranchType = "MERKEZ" | "SUBE" | "TEMSILCILIK" | "IRTIBAT_BUROSU";
+export type BranchStatus = "ACTIVE" | "PASSIVE" | "CLOSED";
+
+export interface Branch {
+  id: string;
+  tenantId: string;
+  name: string;
+  slug: string;
+  code?: string;
+  type: BranchType;
+  status: BranchStatus;
+  phone?: string;
+  email?: string;
+  fax?: string;
+  address?: string;
+  city?: string;
+  district?: string;
+  postalCode?: string;
+  latitude?: number;
+  longitude?: number;
+  presidentName?: string;
+  presidentPhone?: string;
+  presidentEmail?: string;
+  presidentPhoto?: string;
+  workingHours?: Record<string, { open: string; close: string; closed?: boolean }>;
+  socialMedia?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+    youtube?: string;
+    whatsapp?: string;
+  };
+  gallery: string[];
+  description?: string;
+  foundedAt?: Date;
+  memberCount: number;
+  order: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface BranchMessage {
+  id: string;
+  tenantId: string;
+  branchId: string;
+  branch?: Branch;
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  isRead: boolean;
+  createdAt: Date;
+}
+
+// ===== COCUK SPONSORLUK =====
+export type SponsorCategory = "giydirme" | "egitim" | "saglik" | "genel";
+
+export interface SponsorChild {
+  id: string;
+  tenantId: string;
+  name: string;
+  age: number;
+  gender: "male" | "female";
+  country: string;
+  city?: string;
+  story: string;
+  photoUrl: string;
+  goalAmount: number;
+  collected: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  category: SponsorCategory;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ===== API Response =====
