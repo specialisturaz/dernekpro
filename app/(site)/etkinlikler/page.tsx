@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import EventsPageClient from "@/components/site/EventsPageClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Etkinlikler",
   description: "Derneğimizin düzenlediği etkinlikler, seminerler, konferanslar ve sosyal buluşmaların takvimi.",
@@ -32,7 +34,7 @@ interface Event {
 async function getEtkinlikler(): Promise<Event[]> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/events?limit=50`, { next: { revalidate: 60 } });
+    const res = await fetch(`${baseUrl}/api/events?limit=50`, { cache: "no-store" });
     const json = await res.json();
     if (json.success) return json.data;
   } catch { /* fallback */ }

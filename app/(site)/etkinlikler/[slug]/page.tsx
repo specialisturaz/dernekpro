@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { generateEventJsonLd, generateBreadcrumbJsonLd, SITE_URL } from "@/lib/seo";
 import JsonLd from "@/components/site/JsonLd";
 
+export const dynamic = "force-dynamic";
+
 interface Event {
   id: string;
   title: string;
@@ -24,7 +26,7 @@ interface Event {
 async function getEtkinlik(slug: string): Promise<Event | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/events/${slug}`, { next: { revalidate: 60 } });
+    const res = await fetch(`${baseUrl}/api/events/${slug}`, { cache: "no-store" });
     const json = await res.json();
     if (json.success) return json.data;
   } catch { /* fallback */ }

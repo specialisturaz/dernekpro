@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { requireMember } from "@/lib/member-auth";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/member/dues — current member's dues
 export async function GET() {
   const payload = await requireMember();

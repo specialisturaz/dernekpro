@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireMember } from "@/lib/member-auth";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/notifications/unread-count — member's unread notification count
 export async function GET() {
   const member = await requireMember();

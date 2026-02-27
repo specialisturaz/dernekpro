@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isModuleActive } from "@/lib/modules";
 
+export const dynamic = "force-dynamic";
+
 // GET: Aktif subeleri public olarak listele (auth gerekmez)
 export async function GET() {
   try {

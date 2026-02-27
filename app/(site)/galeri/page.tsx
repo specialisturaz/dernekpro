@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import GalleryClient from "@/components/site/GalleryClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Galeri",
   description:
@@ -27,9 +29,7 @@ interface Album {
 async function getAlbums(): Promise<Album[]> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/gallery`, {
-      next: { revalidate: 60 },
-    });
+    const res = await fetch(`${baseUrl}/api/gallery`, { cache: "no-store" });
     if (!res.ok) throw new Error("API error");
     const json = await res.json();
     if (json.success && json.data && json.data.length > 0) {

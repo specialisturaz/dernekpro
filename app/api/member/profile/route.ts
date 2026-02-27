@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireMember } from "@/lib/member-auth";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/member/profile — current member's profile
 export async function GET() {
   const payload = await requireMember();

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Bağış Yap",
   description: "Derneğimize bağış yaparak toplumsal projelere destek olun.",
@@ -28,7 +30,7 @@ interface Campaign {
 async function getKampanyalar(): Promise<Campaign[]> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/campaigns`, { next: { revalidate: 60 } });
+    const res = await fetch(`${baseUrl}/api/campaigns`, { cache: "no-store" });
     const json = await res.json();
     if (json.success) return json.data;
   } catch { /* fallback */ }

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Faaliyetler",
   description: "Derneğimizin gerçekleştirdiği ve devam eden faaliyetler.",
@@ -28,9 +30,7 @@ interface Post {
 async function getFaaliyetler(): Promise<Post[]> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/posts?type=ACTIVITY&limit=50`, {
-      next: { revalidate: 60 },
-    });
+    const res = await fetch(`${baseUrl}/api/posts?type=ACTIVITY&limit=50`, { cache: "no-store" });
     const json = await res.json();
     if (json.success) return json.data;
   } catch {

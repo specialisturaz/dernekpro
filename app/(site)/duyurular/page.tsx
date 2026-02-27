@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Duyurular",
   description: "Derneğimizin resmi duyuruları, önemli bilgilendirmeler ve güncel açıklamalar.",
@@ -28,9 +30,7 @@ interface Post {
 async function getDuyurular(page = 1): Promise<{ data: Post[]; pagination: { page: number; totalPages: number; total: number } }> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/posts?type=ANNOUNCEMENT&page=${page}&limit=12`, {
-      next: { revalidate: 60 },
-    });
+    const res = await fetch(`${baseUrl}/api/posts?type=ANNOUNCEMENT&page=${page}&limit=12`, { cache: "no-store" });
     const json = await res.json();
     if (json.success) return { data: json.data, pagination: json.pagination };
   } catch {

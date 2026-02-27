@@ -38,9 +38,7 @@ interface SponsorChild {
 async function getSponsorChildren(): Promise<SponsorChild[]> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/sponsor-children`, {
-      next: { revalidate: 60 },
-    });
+    const res = await fetch(`${baseUrl}/api/sponsor-children`, { cache: "no-store" });
     const json = await res.json();
     if (json.success) return json.data;
   } catch {

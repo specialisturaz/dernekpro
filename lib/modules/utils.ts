@@ -9,11 +9,17 @@ import { getDefaultTenant } from "@/lib/tenant";
  * DB'de kaydi olmayan opsiyonel moduller varsayilan olarak aktif kabul edilir.
  */
 export async function getActiveModuleCodes(tenantId: string): Promise<string[]> {
-  // DB'den tum tenant modul kayitlarini cek
-  const tenantModules = await prisma.tenantModule.findMany({
-    where: { tenantId },
-    select: { moduleCode: true, isActive: true },
-  });
+  let tenantModules: { moduleCode: string; isActive: boolean }[] = [];
+
+  try {
+    // DB'den tum tenant modul kayitlarini cek
+    tenantModules = await prisma.tenantModule.findMany({
+      where: { tenantId },
+      select: { moduleCode: true, isActive: true },
+    });
+  } catch {
+    // TenantModule tablosu yoksa tum modulleri aktif say
+  }
 
   const tmMap = new Map(tenantModules.map((tm) => [tm.moduleCode, tm.isActive]));
 
@@ -53,13 +59,18 @@ export async function isModuleActive(tenantId: string, moduleCode: string): Prom
   if (!def) return false;
   if (def.isCore) return true;
 
-  const tm = await prisma.tenantModule.findUnique({
-    where: { tenantId_moduleCode: { tenantId, moduleCode } },
-    select: { isActive: true },
-  });
+  try {
+    const tm = await prisma.tenantModule.findUnique({
+      where: { tenantId_moduleCode: { tenantId, moduleCode } },
+      select: { isActive: true },
+    });
 
-  // DB kaydi yoksa varsayilan aktif
-  return tm ? tm.isActive : true;
+    // DB kaydi yoksa varsayilan aktif
+    return tm ? tm.isActive : true;
+  } catch {
+    // TenantModule tablosu yoksa veya DB hatasi olursa varsayilan aktif
+    return true;
+  }
 }
 
 /**

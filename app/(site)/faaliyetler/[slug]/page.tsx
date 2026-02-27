@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { generateArticleJsonLd, generateBreadcrumbJsonLd, SITE_URL } from "@/lib/seo";
 import JsonLd from "@/components/site/JsonLd";
 
+export const dynamic = "force-dynamic";
+
 interface Post {
   id: string;
   title: string;
@@ -28,7 +30,7 @@ interface RelatedPost {
 async function getFaaliyet(slug: string): Promise<{ post: Post; related: RelatedPost[] } | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/posts/${slug}?type=ACTIVITY`, { next: { revalidate: 60 } });
+    const res = await fetch(`${baseUrl}/api/posts/${slug}?type=ACTIVITY`, { cache: "no-store" });
     const json = await res.json();
     if (json.success) return { post: json.data, related: json.related || [] };
   } catch {
