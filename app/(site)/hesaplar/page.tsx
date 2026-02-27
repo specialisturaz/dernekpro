@@ -5,6 +5,8 @@ import { getDefaultTenant } from "@/lib/tenant";
 import { isModuleActive } from "@/lib/modules/utils";
 import BankAccountsClient from "@/components/site/BankAccountsClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Hesap Numaralarımız",
   description: "Derneğimize bağış yapmak için kullanabileceğiniz banka hesap bilgileri ve IBAN numaraları.",

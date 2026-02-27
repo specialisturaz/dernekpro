@@ -6,6 +6,8 @@ import { sanitizeMapEmbed } from "@/lib/utils";
 import ContactForm from "@/components/site/ContactForm";
 import type { ContactPageSettings } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "İletişim",
   description:

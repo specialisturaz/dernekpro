@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import { prisma } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
 import SectionRenderer from "@/components/site/SectionRenderer";
 import type { PageSection } from "@/types/page-builder";
 import type { SlideData } from "@/components/site/HeroSection";

@@ -5,6 +5,8 @@ import SponsorChildrenList from "@/components/site/SponsorChildrenList";
 import { getDefaultTenant } from "@/lib/tenant";
 import { isModuleActive } from "@/lib/modules/utils";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Cocuk Sponsorluk Programi",
   description:
