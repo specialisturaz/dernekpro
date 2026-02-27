@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import GalleryClient from "@/components/site/GalleryClient";
+import { getGalleryAlbums } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -16,33 +17,8 @@ export const metadata: Metadata = {
   },
 };
 
-interface Album {
-  id: string;
-  slug: string;
-  title: string;
-  createdAt: string;
-  imageCount: number;
-  coverImage: string | null;
-  category: string;
-}
-
-async function getAlbums(): Promise<Album[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/gallery`, { cache: "no-store" });
-    if (!res.ok) throw new Error("API error");
-    const json = await res.json();
-    if (json.success && json.data && json.data.length > 0) {
-      return json.data;
-    }
-    return [];
-  } catch {
-    return [];
-  }
-}
-
 export default async function GaleriPage() {
-  const albums = await getAlbums();
+  const albums = await getGalleryAlbums();
 
   return <GalleryClient initialAlbums={albums} />;
 }

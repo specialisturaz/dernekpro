@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getPosts } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -15,32 +16,8 @@ export const metadata: Metadata = {
   },
 };
 
-interface Post {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  coverImage: string | null;
-  tags: string[];
-  isFeatured: boolean;
-  publishedAt: string | null;
-  category: { id: string; name: string; slug: string } | null;
-}
-
-async function getFaaliyetler(): Promise<Post[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/posts?type=ACTIVITY&limit=50`, { cache: "no-store" });
-    const json = await res.json();
-    if (json.success) return json.data;
-  } catch {
-    // fallback
-  }
-  return [];
-}
-
 export default async function FaaliyetlerPage() {
-  const faaliyetler = await getFaaliyetler();
+  const { data: faaliyetler } = await getPosts("ACTIVITY", 1, 50);
 
   return (
     <main>

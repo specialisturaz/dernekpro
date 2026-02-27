@@ -4,6 +4,7 @@ import Link from "next/link";
 import SponsorChildrenList from "@/components/site/SponsorChildrenList";
 import { getDefaultTenant } from "@/lib/tenant";
 import { isModuleActive } from "@/lib/modules/utils";
+import { getSponsorChildren } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -19,33 +20,6 @@ export const metadata: Metadata = {
     canonical: "/cocuk-sponsorluk",
   },
 };
-
-interface SponsorChild {
-  id: string;
-  name: string;
-  age: number;
-  gender: string;
-  country: string;
-  city: string | null;
-  story: string;
-  photoUrl: string;
-  goalAmount: number;
-  collected: number;
-  category: string;
-  isFeatured: boolean;
-}
-
-async function getSponsorChildren(): Promise<SponsorChild[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/sponsor-children`, { cache: "no-store" });
-    const json = await res.json();
-    if (json.success) return json.data;
-  } catch {
-    /* fallback to empty */
-  }
-  return [];
-}
 
 function formatTL(amount: number): string {
   return new Intl.NumberFormat("tr-TR", {

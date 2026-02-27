@@ -3,38 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { generateEventJsonLd, generateBreadcrumbJsonLd, SITE_URL } from "@/lib/seo";
 import JsonLd from "@/components/site/JsonLd";
+import { getEventBySlug } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
-interface Event {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  coverImage: string | null;
-  startAt: string;
-  endAt: string;
-  location: string | null;
-  eventType: string;
-  capacity: number | null;
-  isFree: boolean;
-  price: number | null;
-  requiresRegistration: boolean;
-  status: string;
-}
-
-async function getEtkinlik(slug: string): Promise<Event | null> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/events/${slug}`, { cache: "no-store" });
-    const json = await res.json();
-    if (json.success) return json.data;
-  } catch { /* fallback */ }
-  return null;
-}
-
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const event = await getEtkinlik(params.slug);
+  const event = await getEventBySlug(params.slug);
   if (!event) return { title: "Etkinlik Bulunamadı" };
   return {
     title: event.title,
@@ -52,7 +26,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function EtkinlikDetayPage({ params }: { params: { slug: string } }) {
-  const event = await getEtkinlik(params.slug);
+  const event = await getEventBySlug(params.slug);
   if (!event) notFound();
 
   const startDate = new Date(event.startAt);

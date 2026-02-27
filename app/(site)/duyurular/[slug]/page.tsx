@@ -3,44 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { generateArticleJsonLd, generateBreadcrumbJsonLd, SITE_URL } from "@/lib/seo";
 import JsonLd from "@/components/site/JsonLd";
+import { getPostBySlug } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
-interface Post {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  content: string;
-  coverImage: string | null;
-  tags: string[];
-  publishedAt: string | null;
-  category: { id: string; name: string; slug: string } | null;
-  author: { id: string; name: string } | null;
-}
-
-interface RelatedPost {
-  id: string;
-  title: string;
-  slug: string;
-  publishedAt: string | null;
-  category: { name: string } | null;
-}
-
-async function getDuyuru(slug: string): Promise<{ post: Post; related: RelatedPost[] } | null> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/posts/${slug}?type=ANNOUNCEMENT`, { cache: "no-store" });
-    const json = await res.json();
-    if (json.success) return { post: json.data, related: json.related || [] };
-  } catch {
-    // fallback
-  }
-  return null;
-}
-
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const result = await getDuyuru(params.slug);
+  const result = await getPostBySlug(params.slug, "ANNOUNCEMENT");
   if (!result) return { title: "Duyuru Bulunamadı" };
   const post = result.post;
   return {
@@ -60,7 +28,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function DuyuruDetayPage({ params }: { params: { slug: string } }) {
-  const result = await getDuyuru(params.slug);
+  const result = await getPostBySlug(params.slug, "ANNOUNCEMENT");
   if (!result) notFound();
 
   const { post, related } = result;

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import EventsPageClient from "@/components/site/EventsPageClient";
+import { getEvents } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -16,33 +17,8 @@ export const metadata: Metadata = {
   },
 };
 
-interface Event {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  coverImage: string | null;
-  startAt: string;
-  endAt: string;
-  location: string | null;
-  eventType: string;
-  capacity: number | null;
-  isFree: boolean;
-  status: string;
-}
-
-async function getEtkinlikler(): Promise<Event[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/events?limit=50`, { cache: "no-store" });
-    const json = await res.json();
-    if (json.success) return json.data;
-  } catch { /* fallback */ }
-  return [];
-}
-
 export default async function EtkinliklerPage() {
-  const etkinlikler = await getEtkinlikler();
+  const etkinlikler = await getEvents(50);
 
   return (
     <main>

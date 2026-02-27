@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getCampaigns } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -15,32 +16,10 @@ export const metadata: Metadata = {
   },
 };
 
-interface Campaign {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  coverImage: string | null;
-  targetAmount: number;
-  collectedAmount: number;
-  deadline: string | null;
-  isActive: boolean;
-}
-
-async function getKampanyalar(): Promise<Campaign[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/campaigns`, { cache: "no-store" });
-    const json = await res.json();
-    if (json.success) return json.data;
-  } catch { /* fallback */ }
-  return [];
-}
-
 const bagisSecenekleri = [50, 100, 250, 500, 1000, 2500];
 
 export default async function BagisPage() {
-  const kampanyalar = await getKampanyalar();
+  const kampanyalar = await getCampaigns();
 
   return (
     <main>

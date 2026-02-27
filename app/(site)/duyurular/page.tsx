@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getPosts } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -15,37 +16,13 @@ export const metadata: Metadata = {
   },
 };
 
-interface Post {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  coverImage: string | null;
-  tags: string[];
-  isFeatured: boolean;
-  publishedAt: string | null;
-  category: { id: string; name: string; slug: string } | null;
-}
-
-async function getDuyurular(page = 1): Promise<{ data: Post[]; pagination: { page: number; totalPages: number; total: number } }> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/posts?type=ANNOUNCEMENT&page=${page}&limit=12`, { cache: "no-store" });
-    const json = await res.json();
-    if (json.success) return { data: json.data, pagination: json.pagination };
-  } catch {
-    // fallback
-  }
-  return { data: [], pagination: { page: 1, totalPages: 1, total: 0 } };
-}
-
 export default async function DuyurularPage({
   searchParams,
 }: {
   searchParams: { page?: string };
 }) {
   const page = parseInt(searchParams.page || "1");
-  const { data: duyurular, pagination } = await getDuyurular(page);
+  const { data: duyurular, pagination } = await getPosts("ANNOUNCEMENT", page, 12);
 
   const pinned = duyurular.filter((d) => d.isFeatured);
   const rest = duyurular.filter((d) => !d.isFeatured);
