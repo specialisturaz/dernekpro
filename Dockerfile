@@ -31,9 +31,6 @@ ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 # Generate Prisma client
 RUN corepack enable pnpm && npx prisma generate
 
-# Resolve pnpm symlinks for Prisma client (needed for runner stage)
-RUN mkdir -p /prisma-out && cp -rL node_modules/@prisma /prisma-out/@prisma
-
 # Build Next.js
 RUN corepack enable pnpm && pnpm build
 
@@ -50,13 +47,12 @@ RUN adduser --system --uid 1001 nextjs
 # Copy public assets
 COPY --from=builder /app/public ./public
 
-# Copy standalone output
+# Copy standalone output (includes traced node_modules with Prisma client)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy Prisma schema + client (dereferenced from pnpm symlinks)
+# Copy Prisma schema (needed for migrations/introspection at runtime)
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /prisma-out/@prisma ./node_modules/@prisma
 
 USER nextjs
 
