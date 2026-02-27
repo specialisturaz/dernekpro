@@ -7,33 +7,47 @@ import type { MenuItem } from "@/types";
 
 // GET: Public navigasyon — tenant'in aktif modullerine gore ek ogeler ekler
 export async function GET() {
+  // Branding verisini ayri try/catch ile al — modul hatalari branding'i etkilemesin
+  let branding: { name: string; logoUrl: string; logoWidth: number; logoHeight: number } | null = null;
+  let tenantId: string | null = null;
+
   try {
-    // Ilk tenant'i kullan (tek-tenant kurulum)
     const tenant = await prisma.tenant.findFirst({
       select: { id: true, name: true, settings: true },
     });
-    if (!tenant) {
-      return NextResponse.json({ success: true, data: mainNavigation, branding: null });
+    if (tenant) {
+      tenantId = tenant.id;
+      const tenantSettings = (tenant.settings as Record<string, unknown>) || {};
+      const logoConfig = (tenantSettings.logo as { logoUrl?: string; logoWidth?: number; logoHeight?: number }) || {};
+      branding = {
+        name: tenant.name,
+        logoUrl: logoConfig.logoUrl || "",
+        logoWidth: logoConfig.logoWidth || 140,
+        logoHeight: logoConfig.logoHeight || 40,
+      };
+    }
+  } catch {
+    // Tenant sorgusu basarisiz — branding null kalir
+  }
+
+  // Navigasyon + modul sorgulari
+  try {
+    if (!tenantId) {
+      return NextResponse.json({ success: true, data: mainNavigation, branding });
     }
 
-    // Branding verisi
-    const tenantSettings = (tenant.settings as Record<string, unknown>) || {};
-    const logoConfig = (tenantSettings.logo as { logoUrl?: string; logoWidth?: number; logoHeight?: number }) || {};
-    const branding = {
-      name: tenant.name,
-      logoUrl: logoConfig.logoUrl || "",
-      logoWidth: logoConfig.logoWidth || 140,
-      logoHeight: logoConfig.logoHeight || 40,
-    };
-
     // Aktif opsiyonel modulleri cek
-    const tenantModules = await prisma.tenantModule.findMany({
-      where: { tenantId: tenant.id, isActive: true },
-      select: { moduleCode: true },
-    });
-
-    // Online bagis modulu aktif mi kontrol et
-    const campaignsActive = await isModuleActive(tenant.id, "donations");
+    let tenantModules: { moduleCode: string }[] = [];
+    let campaignsActive = true; // varsayilan aktif
+    try {
+      tenantModules = await prisma.tenantModule.findMany({
+        where: { tenantId, isActive: true },
+        select: { moduleCode: true },
+      });
+      campaignsActive = await isModuleActive(tenantId, "donations");
+    } catch {
+      // TenantModule tablosu yoksa veya hata olursa varsayilan degerleri kullan
+    }
 
     // Opsiyonel modullerin public nav items'larini topla
     const extraNavItems: MenuItem[] = [];
@@ -58,7 +72,6 @@ export async function GET() {
     }
 
     // Static nav + ek ogeler
-    // Kampanya modulu pasifse "Destek Ol" dropdown'unu tek "Hesap Numaralarimiz" butonuna donustur
     const nav = [...mainNavigation].map((item): MenuItem => {
       if (item.label === "Destek Ol" && !campaignsActive) {
         return { id: item.id, label: "Hesap Numaralarımız", href: "/hesaplar", order: item.order };
@@ -66,17 +79,15 @@ export async function GET() {
       return item;
     });
     for (const extra of extraNavItems) {
-      // Zaten varsa ekleme
       if (!nav.find((n) => n.href === extra.href)) {
         nav.push(extra);
       }
     }
 
-    // Order'a gore sirala
     nav.sort((a, b) => a.order - b.order);
 
     return NextResponse.json({ success: true, data: nav, branding });
   } catch {
-    return NextResponse.json({ success: true, data: mainNavigation, branding: null });
+    return NextResponse.json({ success: true, data: mainNavigation, branding });
   }
 }

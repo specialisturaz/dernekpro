@@ -34,6 +34,9 @@ RUN corepack enable pnpm && npx prisma generate
 # Build Next.js
 RUN corepack enable pnpm && pnpm build
 
+# Prepare Prisma CLI for runtime db push
+RUN mkdir -p /prisma-cli && cp -rL node_modules/prisma /prisma-cli/prisma && cp -rL node_modules/@prisma/engines /prisma-cli/engines
+
 # ---- Runner ----
 FROM base AS runner
 WORKDIR /app
@@ -51,8 +54,13 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy Prisma schema (needed for migrations/introspection at runtime)
+# Copy Prisma schema + CLI for runtime db push
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /prisma-cli/prisma ./node_modules/prisma
+COPY --from=builder /prisma-cli/engines ./node_modules/@prisma/engines
+
+# Copy entrypoint script
+COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
 
 USER nextjs
 
@@ -61,5 +69,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# DATABASE_URL must be provided at runtime via environment variables
-CMD ["node", "server.js"]
+# Startup: sync DB schema then start server
+CMD ["sh", "docker-entrypoint.sh"]
