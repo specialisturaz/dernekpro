@@ -26,11 +26,13 @@ ENV NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=$NEXT_PUBLIC_GOOGLE_ANALYTICS_ID
 ENV NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
 # Dummy DATABASE_URL for build - Prisma validation requires a non-empty URL
-# Actual DB connection happens only at runtime with the real DATABASE_URL
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 
 # Generate Prisma client
 RUN corepack enable pnpm && npx prisma generate
+
+# Resolve pnpm symlinks for Prisma client (needed for runner stage)
+RUN mkdir -p /prisma-out && cp -rL node_modules/@prisma /prisma-out/@prisma
 
 # Build Next.js
 RUN corepack enable pnpm && pnpm build
@@ -52,10 +54,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy Prisma schema (needed at runtime)
+# Copy Prisma schema + client (dereferenced from pnpm symlinks)
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /prisma-out/@prisma ./node_modules/@prisma
 
 USER nextjs
 
