@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { getDefaultTenant } from "@/lib/tenant";
 import { isModuleActive } from "@/lib/modules/utils";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/sponsor-children — Aktif sponsor cocuklari listele (public)
 export async function GET(request: NextRequest) {
   try {

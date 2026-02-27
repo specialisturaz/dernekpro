@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/contact — public contact form submission
 export async function POST(request: NextRequest) {
   try {

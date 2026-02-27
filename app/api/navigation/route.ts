@@ -5,6 +5,8 @@ import { MODULE_REGISTRY } from "@/lib/modules";
 import { isModuleActive } from "@/lib/modules/utils";
 import type { MenuItem } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 // GET: Public navigasyon — tenant'in aktif modullerine gore ek ogeler ekler
 export async function GET() {
   // Branding verisini ayri try/catch ile al — modul hatalari branding'i etkilemesin

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/pages/[slug] — public endpoint, no auth required
 export async function GET(
   _request: NextRequest,

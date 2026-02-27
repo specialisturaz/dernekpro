@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // GET: Public sube detay (slug ile)
 export async function GET(
   _req: NextRequest,

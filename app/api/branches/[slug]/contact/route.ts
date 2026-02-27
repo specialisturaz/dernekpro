@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { z } from "zod/v4";
 
+export const dynamic = "force-dynamic";
+
 const contactSchema = z.object({
   name: z.string().min(2, "İsim en az 2 karakter olmalıdır"),
   email: z.email("Geçerli bir e-posta adresi girin"),

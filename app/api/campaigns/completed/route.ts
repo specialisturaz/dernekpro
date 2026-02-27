@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getDefaultTenant } from "@/lib/tenant";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/campaigns/completed — public completed campaigns
 export async function GET(req: NextRequest) {
   try {
