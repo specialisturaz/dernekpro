@@ -38,8 +38,8 @@ export default async function EtkinlikDetayPage({ params }: { params: { slug: st
   const eventJsonLd = generateEventJsonLd({
     name: event.title,
     description: event.description?.substring(0, 300) || "",
-    startDate: event.startAt,
-    endDate: event.endAt,
+    startDate: String(event.startAt),
+    endDate: String(event.endAt),
     location: event.location || undefined,
     url: `${SITE_URL}/etkinlikler/${event.slug}`,
     image: event.coverImage || undefined,

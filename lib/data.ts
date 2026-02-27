@@ -6,8 +6,16 @@ import { prisma } from "./db";
  * All functions serialize results (Date → string) for compatibility with client components.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function serialize<T>(data: T): T {
+/** Recursively converts Date → string in type system (matches JSON.stringify behavior) */
+type Serialized<T> = T extends Date
+  ? string
+  : T extends Array<infer U>
+  ? Serialized<U>[]
+  : T extends object
+  ? { [K in keyof T]: Serialized<T[K]> }
+  : T;
+
+function serialize<T>(data: T): Serialized<T> {
   return JSON.parse(JSON.stringify(data));
 }
 

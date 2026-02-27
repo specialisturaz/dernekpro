@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title: post.title,
       description: post.excerpt || undefined,
       type: "article",
-      ...(post.publishedAt && { publishedTime: post.publishedAt }),
+      ...(post.publishedAt && { publishedTime: String(post.publishedAt) }),
       ...(post.coverImage && { images: [{ url: post.coverImage, width: 1200, height: 630, alt: post.title }] }),
     },
     alternates: {
@@ -38,7 +38,7 @@ export default async function FaaliyetDetayPage({ params }: { params: { slug: st
     description: post.excerpt || "",
     url: `${SITE_URL}/faaliyetler/${post.slug}`,
     image: post.coverImage || `${SITE_URL}/images/og-default.jpg`,
-    publishedTime: post.publishedAt || new Date().toISOString(),
+    publishedTime: String(post.publishedAt || new Date().toISOString()),
     author: post.author?.name || "DernekPro",
   });
 
