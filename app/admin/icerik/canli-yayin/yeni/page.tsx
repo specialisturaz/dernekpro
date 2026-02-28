@@ -43,7 +43,7 @@ export default function NewLiveStreamPage() {
           description: description.trim() || null,
           youtubeUrl: youtubeUrl.trim(),
           thumbnailUrl: thumbnailUrl.trim() || null,
-          scheduledAt,
+          scheduledAt: new Date(scheduledAt).toISOString(),
           notifyUsers,
         }),
       });

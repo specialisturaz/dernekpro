@@ -26,6 +26,7 @@ function formatDate(dateStr: string): string {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/Istanbul",
   }).format(new Date(dateStr));
 }
 
@@ -104,7 +105,7 @@ export default function EditLiveStreamPage() {
           description: description.trim() || null,
           youtubeUrl: youtubeUrl.trim(),
           thumbnailUrl: thumbnailUrl.trim() || null,
-          scheduledAt,
+          scheduledAt: new Date(scheduledAt).toISOString(),
           notifyUsers,
         }),
       });

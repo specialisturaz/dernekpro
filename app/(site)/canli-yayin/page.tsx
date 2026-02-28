@@ -228,6 +228,7 @@ export default function LiveStreamPage() {
       hour: "2-digit",
       minute: "2-digit",
       weekday: "long",
+      timeZone: "Europe/Istanbul",
     }).format(new Date(stream.scheduledAt));
 
     return (
