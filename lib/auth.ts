@@ -151,8 +151,53 @@ export async function getAuthFromCookies(): Promise<JWTPayload | null> {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("access_token")?.value;
 
-  if (!accessToken) return null;
-  return verifyAccessToken(accessToken);
+  // 1. Access token geçerliyse direkt dön
+  if (accessToken) {
+    const payload = await verifyAccessToken(accessToken);
+    if (payload) return payload;
+  }
+
+  // 2. Access token expire olduysa refresh token ile yenile
+  const refreshTokenValue = cookieStore.get("refresh_token")?.value;
+  if (!refreshTokenValue) return null;
+
+  const refreshPayload = await verifyRefreshToken(refreshTokenValue);
+  if (!refreshPayload) return null;
+
+  // 3. Veritabanında session kontrolü
+  const session = await prisma.session.findUnique({
+    where: { refreshToken: refreshTokenValue },
+  });
+
+  if (!session || session.expiresAt < new Date()) return null;
+
+  // 4. Yeni access token oluştur ve cookie'ye yaz
+  const newPayload: JWTPayload = {
+    userId: refreshPayload.userId,
+    tenantId: refreshPayload.tenantId,
+    email: refreshPayload.email,
+    role: refreshPayload.role,
+    type: refreshPayload.type,
+  };
+
+  const newAccessToken = await createAccessToken(newPayload);
+
+  // Session'daki token'ı güncelle
+  await prisma.session.update({
+    where: { id: session.id },
+    data: { token: newAccessToken },
+  });
+
+  // Yeni access token cookie'sini set et
+  cookieStore.set("access_token", newAccessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 15 * 60,
+  });
+
+  return newPayload;
 }
 
 // ===== CURRENT USER HELPER =====
