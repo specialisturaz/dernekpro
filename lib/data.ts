@@ -200,6 +200,21 @@ export async function getCampaigns() {
   }
 }
 
+export async function getCampaignBySlug(slug: string) {
+  try {
+    const tenantId = await getTenantId();
+    if (!tenantId) return null;
+
+    const campaign = await prisma.campaign.findFirst({
+      where: { tenantId, slug, isActive: true },
+    });
+
+    return campaign ? serialize(campaign) : null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Gallery (Galeri) ───
 
 export async function getGalleryAlbums() {

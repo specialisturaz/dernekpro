@@ -74,7 +74,13 @@ export async function uploadToR2(
   validateFile(file);
 
   const bucket = r2Config?.bucketName || process.env.R2_BUCKET_NAME || "dernekpro";
-  const publicUrl = r2Config?.publicUrl || process.env.R2_PUBLIC_URL || "";
+  const publicUrl = (r2Config?.publicUrl || process.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
+
+  if (!publicUrl) {
+    throw new Error(
+      "R2 Public URL ayarlanmamis. Admin panelinden Ayarlar > Depolama bölümünden R2 Public URL'yi girin veya R2_PUBLIC_URL ortam degiskenini ayarlayin."
+    );
+  }
 
   const ext = file.name.split(".").pop() || "bin";
   const key = `${folder}/${randomUUID()}.${ext}`;
@@ -91,7 +97,7 @@ export async function uploadToR2(
   );
 
   return {
-    url: publicUrl ? `${publicUrl}/${key}` : key,
+    url: `${publicUrl}/${key}`,
     key,
     fileName: file.name,
     mimeType: file.type,
