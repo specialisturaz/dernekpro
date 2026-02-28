@@ -51,6 +51,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copy sharp for image optimization in standalone mode
+COPY --from=builder /app/node_modules/sharp ./node_modules/sharp
+COPY --from=builder /app/node_modules/@img ./node_modules/@img
+
 # Copy Prisma schema (needed for migrations/introspection at runtime)
 COPY --from=builder /app/prisma ./prisma
 
