@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface Campaign {
   id: string;
@@ -37,7 +38,6 @@ export default function CampaignsAdminPage() {
   const [formMode, setFormMode] = useState<FormMode>("closed");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -69,7 +69,6 @@ export default function CampaignsAdminPage() {
 
   const resetForm = () => {
     setForm({ title: "", description: "", coverImage: "", targetAmount: "", deadline: "", status: "ACTIVE" });
-    setCoverPreview(null);
     setFormMode("closed");
     setEditingId(null);
   };
@@ -85,29 +84,8 @@ export default function CampaignsAdminPage() {
       deadline: c.deadline ? c.deadline.slice(0, 10) : "",
       status: c.status,
     });
-    setCoverPreview(c.coverImage);
     setEditingId(c.id);
     setFormMode("edit");
-  };
-
-  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setCoverPreview(URL.createObjectURL(file));
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("folder", "campaigns");
-    try {
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      if (data.success) {
-        setForm((prev) => ({ ...prev, coverImage: data.url }));
-      } else {
-        showToast("Görsel yüklenemedi", "error");
-      }
-    } catch {
-      showToast("Görsel yüklenirken hata oluştu", "error");
-    }
   };
 
   const handleSave = async () => {
@@ -220,13 +198,12 @@ export default function CampaignsAdminPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Kapak Görseli</label>
-              <input type="file" accept="image/*" onChange={handleCoverUpload} className="text-sm" />
-              {coverPreview && (
-                <div className="mt-2 relative w-32 h-20 rounded overflow-hidden">
-                  <Image src={coverPreview} alt="Kapak" fill className="object-cover" />
-                </div>
-              )}
+              <ImageUpload
+                value={form.coverImage}
+                onChange={(url) => setForm((prev) => ({ ...prev, coverImage: url }))}
+                folder="campaigns"
+                label="Kapak Görseli"
+              />
             </div>
           </div>
 
