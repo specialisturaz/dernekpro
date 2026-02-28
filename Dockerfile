@@ -51,9 +51,8 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy sharp for image optimization in standalone mode
-COPY --from=builder /app/node_modules/sharp ./node_modules/sharp
-COPY --from=builder /app/node_modules/@img ./node_modules/@img
+# Install sharp directly in runner for image optimization
+RUN npm install --os=linux --cpu=x64 sharp@0.34.5
 
 # Copy Prisma schema (needed for migrations/introspection at runtime)
 COPY --from=builder /app/prisma ./prisma
