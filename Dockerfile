@@ -40,9 +40,13 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_SHARP_PATH=/app/node_modules/sharp
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+
+# Install sharp for image optimization (Alpine = linux-musl)
+RUN npm install --os=linux --libc=musl sharp@0.34.5
 
 # Copy public assets
 COPY --from=builder /app/public ./public
@@ -50,9 +54,6 @@ COPY --from=builder /app/public ./public
 # Copy standalone output (includes traced node_modules with Prisma client)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Install sharp directly in runner for image optimization
-RUN npm install --os=linux --cpu=x64 sharp@0.34.5
 
 # Copy Prisma schema (needed for migrations/introspection at runtime)
 COPY --from=builder /app/prisma ./prisma
