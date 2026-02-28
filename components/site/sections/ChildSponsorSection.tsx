@@ -2,18 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getDefaultTenant } from "@/lib/tenant";
 import { isModuleActive } from "@/lib/modules/utils";
-
-interface SponsorChild {
-  id: string;
-  name: string;
-  age: number;
-  photoUrl: string;
-  goalAmount: number;
-  collected: number;
-  category: string;
-  country: string;
-  city?: string;
-}
+import { getSponsorChildren } from "@/lib/data";
 
 const categoryLabels: Record<string, string> = {
   giydirme: "Giydirme",
@@ -29,20 +18,6 @@ const categoryColors: Record<string, string> = {
   genel: "bg-amber-100 text-amber-700",
 };
 
-async function getFeaturedChildren(): Promise<SponsorChild[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/sponsor-children?featured=true&limit=4`, {
-      next: { revalidate: 120 },
-    });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json.success ? json.data : [];
-  } catch {
-    return [];
-  }
-}
-
 export default async function ChildSponsorSection() {
   const tenant = await getDefaultTenant();
   if (tenant) {
@@ -50,7 +25,8 @@ export default async function ChildSponsorSection() {
     if (!active) return null;
   }
 
-  const children = await getFeaturedChildren();
+  const allChildren = await getSponsorChildren();
+  const children = allChildren.filter((c) => c.isFeatured).slice(0, 4);
   if (children.length === 0) return null;
 
   return (

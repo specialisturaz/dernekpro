@@ -3,31 +3,7 @@ import Image from "next/image";
 import { formatCurrency, getProgressPercentage } from "@/lib/utils";
 import { getDefaultTenant } from "@/lib/tenant";
 import { isModuleActive } from "@/lib/modules/utils";
-
-interface CampaignItem {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  coverImage: string | null;
-  targetAmount: number;
-  collectedAmount: number;
-}
-
-async function getActiveCampaigns(): Promise<CampaignItem[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/campaigns`, {
-      next: { revalidate: 120 },
-    });
-    if (!res.ok) return [];
-    const json = await res.json();
-    if (!json.success) return [];
-    return (json.data as CampaignItem[]).slice(0, 3);
-  } catch {
-    return [];
-  }
-}
+import { getCampaigns } from "@/lib/data";
 
 export default async function CampaignsSection() {
   // Kampanya modulu pasifse section'i gosterme
@@ -37,7 +13,7 @@ export default async function CampaignsSection() {
     if (!active) return null;
   }
 
-  const campaigns = await getActiveCampaigns();
+  const campaigns = (await getCampaigns()).slice(0, 3);
 
   if (campaigns.length === 0) return null;
 

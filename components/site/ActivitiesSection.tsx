@@ -1,15 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-
-interface ActivityItem {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  coverImage: string | null;
-  publishedAt: string | null;
-  category: { name: string } | null;
-}
+import { getPosts } from "@/lib/data";
 
 const categoryColors: Record<string, string> = {
   "Eğitim": "bg-blue-100 text-blue-700",
@@ -31,22 +22,8 @@ const GRADIENTS = [
   "from-rose-500/20 to-red-500/10",
 ];
 
-async function getLatestActivities(): Promise<ActivityItem[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/posts?type=ACTIVITY&limit=6`, {
-      next: { revalidate: 120 },
-    });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json.success ? json.data : [];
-  } catch {
-    return [];
-  }
-}
-
 export default async function ActivitiesSection() {
-  const activities = await getLatestActivities();
+  const { data: activities } = await getPosts("ACTIVITY", 1, 6);
   if (activities.length === 0) return null;
 
   return (

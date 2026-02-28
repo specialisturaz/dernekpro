@@ -1,51 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatDate } from "@/lib/utils";
-
-interface NewsItem {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  coverImage: string | null;
-  publishedAt: string | null;
-  category: { name: string } | null;
-}
-
-interface Announcement {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  publishedAt: string | null;
-  isFeatured: boolean;
-}
-
-async function getNewsAndAnnouncements(): Promise<{
-  news: NewsItem[];
-  announcements: Announcement[];
-}> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const [newsRes, annRes] = await Promise.all([
-      fetch(`${baseUrl}/api/posts?type=NEWS&limit=3`, { next: { revalidate: 120 } }),
-      fetch(`${baseUrl}/api/posts?type=ANNOUNCEMENT&limit=4`, { next: { revalidate: 120 } }),
-    ]);
-
-    const newsJson = newsRes.ok ? await newsRes.json() : { success: false };
-    const annJson = annRes.ok ? await annRes.json() : { success: false };
-
-    return {
-      news: newsJson.success ? newsJson.data : [],
-      announcements: annJson.success ? annJson.data : [],
-    };
-  } catch {
-    return { news: [], announcements: [] };
-  }
-}
+import { getPosts } from "@/lib/data";
 
 export default async function NewsAnnouncementsSection() {
-  const { news, announcements } = await getNewsAndAnnouncements();
+  const [newsResult, annResult] = await Promise.all([
+    getPosts("NEWS", 1, 3),
+    getPosts("ANNOUNCEMENT", 1, 4),
+  ]);
+  const news = newsResult.data;
+  const announcements = annResult.data;
   if (news.length === 0 && announcements.length === 0) return null;
 
   return (

@@ -1,14 +1,5 @@
 import Link from "next/link";
-
-interface EventItem {
-  id: string;
-  title: string;
-  slug: string;
-  startAt: string;
-  location: string | null;
-  isFree: boolean;
-  status: string;
-}
+import { getEvents } from "@/lib/data";
 
 function getMonthName(dateStr: string) {
   return new Intl.DateTimeFormat("tr-TR", { month: "short" }).format(
@@ -32,22 +23,8 @@ function getDayName(dateStr: string) {
   );
 }
 
-async function getUpcomingEvents(): Promise<EventItem[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/events?limit=4`, {
-      next: { revalidate: 120 },
-    });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json.success ? json.data : [];
-  } catch {
-    return [];
-  }
-}
-
 export default async function EventsSection() {
-  const events = await getUpcomingEvents();
+  const events = await getEvents(4);
 
   if (events.length === 0) return null;
 

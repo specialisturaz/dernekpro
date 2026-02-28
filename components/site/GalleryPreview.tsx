@@ -1,14 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-
-interface AlbumItem {
-  id: string;
-  title: string;
-  slug: string;
-  coverImage: string | null;
-  category: string;
-  imageCount: number;
-}
+import { getGalleryAlbums } from "@/lib/data";
 
 const GRADIENTS = [
   "from-primary/20 to-accent",
@@ -19,22 +11,8 @@ const GRADIENTS = [
   "from-cyan-500/20 to-blue-500/10",
 ];
 
-async function getGalleryAlbums(): Promise<AlbumItem[]> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/gallery`, {
-      next: { revalidate: 120 },
-    });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json.success ? (json.data as AlbumItem[]).slice(0, 6) : [];
-  } catch {
-    return [];
-  }
-}
-
 export default async function GalleryPreview() {
-  const albums = await getGalleryAlbums();
+  const albums = (await getGalleryAlbums()).slice(0, 6);
   if (albums.length === 0) return null;
 
   return (
