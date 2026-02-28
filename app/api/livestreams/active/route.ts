@@ -48,12 +48,14 @@ export async function GET() {
       );
     }
 
-    // If no live stream, find the next scheduled one
+    // If no live stream, find the nearest scheduled one
+    // Include recently-passed scheduled times (admin may not have clicked "start" yet)
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const scheduledStream = await prisma.liveStream.findFirst({
       where: {
         tenantId: tenant.id,
         status: "SCHEDULED",
-        scheduledAt: { gt: new Date() },
+        scheduledAt: { gte: oneDayAgo },
       },
       orderBy: { scheduledAt: "asc" },
     });

@@ -219,7 +219,7 @@ export default function LiveStreamPage() {
     );
   }
 
-  // Scheduled stream - show countdown
+  // Scheduled stream - show countdown or "starting soon"
   if (stream.status === "SCHEDULED") {
     const scheduledDate = new Intl.DateTimeFormat("tr-TR", {
       day: "2-digit",
@@ -231,13 +231,15 @@ export default function LiveStreamPage() {
       timeZone: "Europe/Istanbul",
     }).format(new Date(stream.scheduledAt));
 
+    const isPast = new Date(stream.scheduledAt).getTime() <= Date.now();
+
     return (
       <div className="min-h-screen flex items-center justify-center px-6 py-24">
         <div className="text-center max-w-2xl w-full">
           {/* Icon */}
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">
+          <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8 ${isPast ? "bg-red-100" : "bg-primary/10"}`}>
             <svg
-              className="w-10 h-10 text-primary"
+              className={`w-10 h-10 ${isPast ? "text-red-500 animate-pulse" : "text-primary"}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -263,8 +265,19 @@ export default function LiveStreamPage() {
 
           <p className="text-sm text-muted mb-8">{scheduledDate}</p>
 
-          {/* Countdown */}
-          <Countdown targetDate={stream.scheduledAt} />
+          {isPast ? (
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 px-6 py-3 rounded-xl text-lg font-semibold">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+                </span>
+                Yayin her an baslayacak...
+              </div>
+            </div>
+          ) : (
+            <Countdown targetDate={stream.scheduledAt} />
+          )}
 
           <p className="text-muted text-sm mt-10">
             Yayin basladiginda bu sayfa otomatik olarak guncellenecektir.
