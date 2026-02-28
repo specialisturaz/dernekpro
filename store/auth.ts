@@ -14,7 +14,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
 
-  login: (email: string, password: string, type?: "user" | "member") => Promise<boolean>;
+  login: (email: string, password: string, type?: "user" | "member", rememberMe?: boolean) => Promise<boolean>;
   register: (data: Record<string, unknown>) => Promise<{ success: boolean; message: string }>;
   registerMember: (data: Record<string, unknown>) => Promise<{ success: boolean; message: string }>;
   logout: () => Promise<void>;
@@ -27,14 +27,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: false,
   error: null,
 
-  login: async (email, password, type = "user") => {
+  login: async (email, password, type = "user", rememberMe = false) => {
     set({ isLoading: true, error: null });
     try {
       const endpoint = type === "member" ? "/api/auth/member/login" : "/api/auth/login";
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       const data = await res.json();

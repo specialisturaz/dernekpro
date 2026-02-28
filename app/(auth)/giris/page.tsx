@@ -17,12 +17,13 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [loginType, setLoginType] = useState<"user" | "member">("member");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
 
-    const success = await login(email, password, loginType);
+    const success = await login(email, password, loginType, rememberMe);
     if (success) {
       if (loginType === "user") {
         router.push("/admin/dashboard");
@@ -148,6 +149,17 @@ function LoginForm() {
                 </button>
               </div>
             </div>
+
+            {/* Beni Hatırla */}
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-border text-primary focus:ring-primary/30"
+              />
+              <span className="text-sm text-muted">Beni hatırla</span>
+            </label>
 
             {/* Giriş Butonu */}
             <button

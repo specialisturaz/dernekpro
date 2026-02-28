@@ -158,7 +158,7 @@ async function getStorageConfig(tenantId: string): Promise<StorageSettings> {
   });
   const settings = (tenant?.settings as Record<string, unknown>) || {};
   const storage = settings.storage as StorageSettings | undefined;
-  return storage || { provider: "r2" };
+  return storage || { provider: "local" };
 }
 
 export async function uploadFile(

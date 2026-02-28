@@ -12,6 +12,8 @@ const REFRESH_SECRET = new TextEncoder().encode(
 
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "7d";
+const REMEMBER_ME_REFRESH_EXPIRY = "30d";
+const REMEMBER_ME_SESSION_DAYS = 30;
 
 export interface JWTPayload {
   userId: string;
@@ -42,11 +44,11 @@ export async function createAccessToken(payload: JWTPayload): Promise<string> {
     .sign(JWT_SECRET);
 }
 
-export async function createRefreshToken(payload: JWTPayload): Promise<string> {
+export async function createRefreshToken(payload: JWTPayload, rememberMe = false): Promise<string> {
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime(REFRESH_TOKEN_EXPIRY)
+    .setExpirationTime(rememberMe ? REMEMBER_ME_REFRESH_EXPIRY : REFRESH_TOKEN_EXPIRY)
     .sign(REFRESH_SECRET);
 }
 
@@ -77,13 +79,15 @@ export async function createSession(
   userId: string,
   payload: JWTPayload,
   ip?: string,
-  userAgent?: string
+  userAgent?: string,
+  rememberMe = false
 ) {
   const accessToken = await createAccessToken(payload);
-  const refreshToken = await createRefreshToken(payload);
+  const refreshToken = await createRefreshToken(payload, rememberMe);
 
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 7);
+  const sessionDays = rememberMe ? REMEMBER_ME_SESSION_DAYS : 7;
+  expiresAt.setDate(expiresAt.getDate() + sessionDays);
 
   await prisma.session.create({
     data: {
@@ -96,7 +100,7 @@ export async function createSession(
     },
   });
 
-  return { accessToken, refreshToken };
+  return { accessToken, refreshToken, rememberMe };
 }
 
 export async function invalidateSession(token: string) {
@@ -114,7 +118,8 @@ export async function invalidateAllUserSessions(userId: string) {
 // ===== COOKIES =====
 export async function setAuthCookies(
   accessToken: string,
-  refreshToken: string
+  refreshToken: string,
+  rememberMe = false
 ) {
   const cookieStore = await cookies();
 
@@ -131,7 +136,8 @@ export async function setAuthCookies(
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 7 * 24 * 60 * 60, // 7 days
+    // "Beni Hatırla" seçiliyse 30 gün, değilse tarayıcı kapanınca sona erer
+    ...(rememberMe ? { maxAge: REMEMBER_ME_SESSION_DAYS * 24 * 60 * 60 } : {}),
   });
 }
 

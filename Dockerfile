@@ -44,8 +44,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy public assets
-COPY --from=builder /app/public ./public
+# Copy public assets and ensure uploads directory is writable
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+RUN mkdir -p /app/public/uploads && chown -R nextjs:nodejs /app/public/uploads
 
 # Copy standalone output (includes traced node_modules with Prisma client)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

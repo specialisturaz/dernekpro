@@ -47,7 +47,7 @@ export default function AyarlarPage() {
   const [maintenanceSaving, setMaintenanceSaving] = useState(false);
 
   // Storage state
-  const [storageProvider, setStorageProvider] = useState<"local" | "r2">("r2");
+  const [storageProvider, setStorageProvider] = useState<"local" | "r2">("local");
   const [storageR2, setStorageR2] = useState({
     accountId: "",
     accessKeyId: "",

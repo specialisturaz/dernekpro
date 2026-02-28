@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, password } = result.data;
+    const rememberMe = body.rememberMe === true;
 
     // Find tenant
     const tenant = await prisma.tenant.findUnique({
@@ -78,10 +79,11 @@ export async function POST(request: NextRequest) {
       user.id,
       jwtPayload,
       ip,
-      userAgent
+      userAgent,
+      rememberMe
     );
 
-    await setAuthCookies(accessToken, refreshToken);
+    await setAuthCookies(accessToken, refreshToken, rememberMe);
 
     return NextResponse.json({
       success: true,

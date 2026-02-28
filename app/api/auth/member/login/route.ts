@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, password } = result.data;
+    const rememberMe = body.rememberMe === true;
 
     // Find tenant
     const tenant = await prisma.tenant.findUnique({
@@ -81,11 +82,11 @@ export async function POST(request: NextRequest) {
 
     // Members use JWT without DB session (Session table requires User FK)
     const accessToken = (await import("@/lib/auth")).createAccessToken(jwtPayload);
-    const refreshToken = (await import("@/lib/auth")).createRefreshToken(jwtPayload);
+    const refreshToken = (await import("@/lib/auth")).createRefreshToken(jwtPayload, rememberMe);
 
     const [at, rt] = await Promise.all([accessToken, refreshToken]);
 
-    await setAuthCookies(at, rt);
+    await setAuthCookies(at, rt, rememberMe);
 
     return NextResponse.json({
       success: true,

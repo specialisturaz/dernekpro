@@ -24,7 +24,7 @@ export async function GET() {
     message: "",
   };
   const storage: StorageSettings = (settings.storage as StorageSettings) || {
-    provider: "r2",
+    provider: "local",
   };
   const footer: FooterSettings = (settings.footer as FooterSettings) || {
     brandName: tenant?.name || "DernekPro",
