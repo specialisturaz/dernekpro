@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { title, content, template, metaTitle, metaDesc, isPublished, order } = body;
+  const { title, content, template, metaTitle, metaDesc, isPublished, showInMenu, order } = body;
 
   if (!title || !content) {
     return NextResponse.json(
@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
       metaTitle: metaTitle || null,
       metaDesc: metaDesc || null,
       isPublished: isPublished ?? false,
+      showInMenu: showInMenu ?? false,
       order: order ?? 0,
     },
   });

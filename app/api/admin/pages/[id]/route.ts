@@ -70,6 +70,7 @@ export async function PATCH(
       metaTitle,
       metaDesc,
       isPublished,
+      showInMenu,
       customCss,
       sections,
     } = body;
@@ -81,6 +82,7 @@ export async function PATCH(
     if (metaTitle !== undefined) data.metaTitle = metaTitle;
     if (metaDesc !== undefined) data.metaDesc = metaDesc;
     if (isPublished !== undefined) data.isPublished = isPublished;
+    if (showInMenu !== undefined) data.showInMenu = showInMenu;
     if (customCss !== undefined) data.customCss = customCss;
     if (sections !== undefined) data.sections = sections;
 

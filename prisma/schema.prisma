@@ -489,6 +489,7 @@ model Page {
   metaTitle   String?  @map("meta_title")
   metaDesc    String?  @map("meta_desc")
   isPublished Boolean  @default(false) @map("is_published")
+  showInMenu  Boolean  @default(false) @map("show_in_menu")
   order       Int      @default(0)
   sections    Json?    // Page builder section config JSON
   customCss   String?  @map("custom_css")

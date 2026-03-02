@@ -74,11 +74,11 @@ export async function GET() {
     }
 
     // Admin panelinden eklenen yayinlanmis sayfalari cek
-    let cmsPages: { id: string; title: string; slug: string; order: number }[] = [];
+    let cmsPages: { id: string; title: string; slug: string; order: number; showInMenu: boolean }[] = [];
     try {
       cmsPages = await prisma.page.findMany({
         where: { tenantId, isPublished: true },
-        select: { id: true, title: true, slug: true, order: true },
+        select: { id: true, title: true, slug: true, order: true, showInMenu: true },
         orderBy: { order: "asc" },
       });
     } catch {
@@ -98,17 +98,38 @@ export async function GET() {
       }
     }
 
-    // CMS sayfalarini navigasyona ekle
-    for (const page of cmsPages) {
-      const pageHref = `/${page.slug}`;
-      if (!nav.find((n) => n.href === pageHref)) {
-        nav.push({
-          id: `page-${page.id}`,
-          label: page.title,
-          href: pageHref,
-          order: page.order > 0 ? page.order : 90,
-        });
+    // CMS sayfalarini navigasyona ekle — sadece showInMenu:true olan ve
+    // mevcut navigasyonda (ust + alt menuler dahil) bulunmayan sayfalar
+    const allExistingHrefs = new Set<string>();
+    for (const item of nav) {
+      allExistingHrefs.add(item.href);
+      if (item.children) {
+        for (const child of item.children) {
+          allExistingHrefs.add(child.href);
+        }
       }
+    }
+    // Bilinen uygulama rotalari — CMS sayfasi olarak eklenmemeli
+    const reservedSlugs = new Set([
+      "giris", "uye-ol", "admin", "canli-yayin", "bagis", "hesaplar",
+      "haberler", "etkinlikler", "galeri", "hakkimizda", "faaliyetler",
+      "iletisim", "uye", "profil", "ayarlar",
+    ]);
+
+    for (const page of cmsPages) {
+      // showInMenu false ise ekleme
+      if (page.showInMenu === false) continue;
+      // Bilinen rotalari ekleme
+      if (reservedSlugs.has(page.slug)) continue;
+      const pageHref = `/${page.slug}`;
+      // Mevcut navigasyonda (ust + alt) varsa ekleme
+      if (allExistingHrefs.has(pageHref)) continue;
+      nav.push({
+        id: `page-${page.id}`,
+        label: page.title,
+        href: pageHref,
+        order: page.order > 0 ? page.order : 90,
+      });
     }
 
     nav.sort((a, b) => a.order - b.order);

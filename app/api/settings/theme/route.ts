@@ -28,7 +28,7 @@ export async function GET() {
       { success: true, data: theme },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30",
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
         },
       }
     );
@@ -38,7 +38,7 @@ export async function GET() {
       { success: true, data: DEFAULT_THEME },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30",
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
         },
       }
     );

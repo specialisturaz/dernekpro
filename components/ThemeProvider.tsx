@@ -52,18 +52,27 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     // 1. Try localStorage cache first (prevents flash)
     const cached = localStorage.getItem("dernekpro-theme");
+    let cachedJson = "";
     if (cached) {
       try {
         const parsed = JSON.parse(cached) as ThemeSettings;
         if (parsed.light && parsed.dark) {
           applyThemeToDOM(parsed);
+          cachedJson = cached;
         }
       } catch {
         // Invalid cache
       }
     }
 
-    // 2. Fetch from API (source of truth)
+    // 2. Fetch from API (source of truth) — only if cache is old or missing
+    const lastFetch = localStorage.getItem("dernekpro-theme-ts");
+    const now = Date.now();
+    // 5 dakika icinde tekrar fetch etme — flash onlenir
+    if (lastFetch && cachedJson && now - Number(lastFetch) < 5 * 60 * 1000) {
+      return;
+    }
+
     fetch("/api/settings/theme")
       .then((res) => res.json())
       .then((json) => {
@@ -71,8 +80,13 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
           const theme = json.data as ThemeSettings;
           // Validate structure before applying
           if (theme.light && theme.dark && theme.typography && theme.layout) {
-            applyThemeToDOM(theme);
-            localStorage.setItem("dernekpro-theme", JSON.stringify(theme));
+            const newJson = JSON.stringify(theme);
+            // Sadece tema degistiyse DOM'a uygula (flash onleme)
+            if (newJson !== cachedJson) {
+              applyThemeToDOM(theme);
+            }
+            localStorage.setItem("dernekpro-theme", newJson);
+            localStorage.setItem("dernekpro-theme-ts", String(now));
           }
         }
       })

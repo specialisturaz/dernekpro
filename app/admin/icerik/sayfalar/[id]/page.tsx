@@ -26,6 +26,7 @@ interface PageData {
   metaTitle: string | null;
   metaDesc: string | null;
   isPublished: boolean;
+  showInMenu: boolean;
   customCss: string | null;
   sections: unknown | null;
 }
@@ -42,6 +43,7 @@ export default function EditPagePage() {
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDesc, setMetaDesc] = useState("");
   const [isPublished, setIsPublished] = useState(false);
+  const [showInMenu, setShowInMenu] = useState(false);
   const [customCss, setCustomCss] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -65,6 +67,7 @@ export default function EditPagePage() {
         setMetaTitle(p.metaTitle || "");
         setMetaDesc(p.metaDesc || "");
         setIsPublished(p.isPublished);
+        setShowInMenu(p.showInMenu ?? false);
         setCustomCss(p.customCss || "");
       } else {
         showToast("error", "Sayfa bulunamadi");
@@ -106,6 +109,7 @@ export default function EditPagePage() {
           metaTitle: metaTitle || null,
           metaDesc: metaDesc || null,
           isPublished,
+          showInMenu,
           customCss: customCss || null,
         }),
       });
@@ -260,6 +264,26 @@ export default function EditPagePage() {
             </button>
             <span className="text-sm text-foreground">
               {isPublished ? "Yayinda" : "Taslak"}
+            </span>
+          </div>
+
+          {/* showInMenu Toggle */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowInMenu(!showInMenu)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                showInMenu ? "bg-blue-500" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  showInMenu ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+            <span className="text-sm text-foreground">
+              {showInMenu ? "Menude gosteriliyor" : "Menude gosterilmiyor"}
             </span>
           </div>
         </div>
