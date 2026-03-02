@@ -22,6 +22,8 @@ export default function RichEditor({ value, onChange, placeholder = "İçeriği 
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
+  const [htmlMode, setHtmlMode] = useState(false);
+  const [htmlSource, setHtmlSource] = useState("");
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -226,10 +228,41 @@ export default function RichEditor({ value, onChange, placeholder = "İçeriği 
         <ToolBtn onClick={() => editor.chain().focus().redo().run()} title="Yinele" disabled={!editor.can().redo()}>
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3L21 13"/></svg>
         </ToolBtn>
+
+        <Divider />
+
+        {/* HTML Source Toggle */}
+        <ToolBtn
+          active={htmlMode}
+          onClick={() => {
+            if (!htmlMode) {
+              setHtmlSource(editor.getHTML());
+            } else {
+              editor.commands.setContent(htmlSource, { emitUpdate: true });
+            }
+            setHtmlMode(!htmlMode);
+          }}
+          title="HTML Kaynak Kodu"
+        >
+          <span className="font-bold text-xs">&lt;/&gt;</span>
+        </ToolBtn>
       </div>
 
-      {/* Editor */}
-      <EditorContent editor={editor} />
+      {/* Editor or HTML Source */}
+      {htmlMode ? (
+        <textarea
+          value={htmlSource}
+          onChange={(e) => {
+            setHtmlSource(e.target.value);
+            onChange(e.target.value);
+          }}
+          className="w-full min-h-[300px] p-4 font-mono text-sm bg-gray-50 text-foreground focus:outline-none resize-y"
+          placeholder="HTML kodunu buraya yazın..."
+          spellCheck={false}
+        />
+      ) : (
+        <EditorContent editor={editor} />
+      )}
 
       {/* Hidden file input for image upload */}
       <input

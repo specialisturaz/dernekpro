@@ -83,6 +83,25 @@ export default async function FaaliyetDetayPage({ params }: { params: { slug: st
                 </div>
               )}
               <div className="prose prose-lg max-w-none text-muted leading-relaxed" dangerouslySetInnerHTML={{ __html: post.content }} />
+
+              {/* CTA Section */}
+              <div className="mt-12 p-8 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl border border-primary/20 text-center">
+                <h3 className="text-xl md:text-2xl font-bold font-heading text-foreground mb-3">
+                  &ldquo;{post.title}&rdquo; Faaliyetimize Destek Olun
+                </h3>
+                <p className="text-muted mb-6 max-w-lg mx-auto">
+                  Bu faaliyetimize bağış yaparak destek olabilirsiniz. Hesap numaralarımız üzerinden kolayca bağışta bulunabilirsiniz.
+                </p>
+                <Link
+                  href="/hesaplar"
+                  className="inline-flex items-center gap-2 px-8 py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                  Hesap Numaralarımız
+                </Link>
+              </div>
             </article>
 
             <aside className="space-y-6">
