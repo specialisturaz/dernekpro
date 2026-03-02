@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { mainNavigation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -31,6 +31,19 @@ export default function Header() {
   const [branding, setBranding] = useState<Branding>({ name: "", logoUrl: "", logoWidth: 140, logoHeight: 40 });
   const { user } = useAuthStore();
   const isMember = user && user.type === "member";
+  const navRef = useRef<HTMLDivElement>(null);
+  const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Dropdown dışına tıklayınca kapat
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,6 +90,25 @@ export default function Header() {
     const interval = setInterval(fetchStream, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Hover ile dropdown aç — delayed close ile boşluk sorununu çöz
+  const handleMouseEnter = useCallback((itemId: string) => {
+    if (closeTimeout.current) {
+      clearTimeout(closeTimeout.current);
+      closeTimeout.current = null;
+    }
+    setActiveDropdown(itemId);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    closeTimeout.current = setTimeout(() => {
+      setActiveDropdown(null);
+    }, 150);
+  }, []);
+
+  // "Destek Ol" veya "Hesap Numaralarımız" kontrolü
+  const isHighlightedItem = (label: string) =>
+    label === "Destek Ol" || label === "Hesap Numaralarımız";
 
   return (
     <header
@@ -154,29 +186,29 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-0.5 ml-12">
+          <div ref={navRef} className="hidden lg:flex items-center gap-0.5 ml-12">
             {navItems.map((item) => (
               <div
                 key={item.id}
                 className="relative"
-                onMouseEnter={() =>
-                  item.children && setActiveDropdown(item.id)
-                }
-                onMouseLeave={() => setActiveDropdown(null)}
+                onMouseEnter={() => item.children && handleMouseEnter(item.id)}
+                onMouseLeave={() => item.children && handleMouseLeave()}
               >
                 {item.children ? (
                   <button
                     type="button"
                     onClick={() => setActiveDropdown(activeDropdown === item.id ? null : item.id)}
                     className={cn(
-                      "px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200",
-                      "text-foreground/80 hover:text-primary hover:bg-primary/5"
+                      "px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-1",
+                      isHighlightedItem(item.label)
+                        ? "bg-secondary text-white hover:bg-secondary/90 ml-3 shadow-sm hover:shadow-md"
+                        : "text-foreground/80 hover:text-primary hover:bg-primary/5"
                     )}
                   >
                     {item.label}
                     <svg
                       className={cn(
-                        "w-3.5 h-3.5 inline-block ml-1 transition-transform duration-200",
+                        "w-3.5 h-3.5 transition-transform duration-200",
                         activeDropdown === item.id && "rotate-180"
                       )}
                       fill="none"
@@ -196,7 +228,7 @@ export default function Header() {
                     href={item.href}
                     className={cn(
                       "px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200",
-                      item.label === "Destek Ol" || item.label === "Hesap Numaralarımız"
+                      isHighlightedItem(item.label)
                         ? "bg-secondary text-white hover:bg-secondary/90 ml-3 shadow-sm hover:shadow-md"
                         : "text-foreground/80 hover:text-primary hover:bg-primary/5"
                     )}
@@ -207,17 +239,20 @@ export default function Header() {
 
                 {/* Dropdown */}
                 {item.children && activeDropdown === item.id && (
-                  <div className="absolute top-full left-0 mt-2 w-60 bg-background rounded-xl shadow-xl border border-border/50 py-2 animate-fade-in">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.id}
-                        href={child.href}
-                        className="flex items-center gap-3 px-4 py-3 text-sm text-foreground/80 hover:bg-primary/5 hover:text-primary transition-colors"
-                      >
-                        <span className="w-1.5 h-1.5 bg-primary/30 rounded-full" />
-                        {child.label}
-                      </Link>
-                    ))}
+                  <div className="absolute top-full left-0 pt-1">
+                    <div className="w-60 bg-background rounded-xl shadow-xl border border-border/50 py-2 animate-fade-in">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.id}
+                          href={child.href}
+                          className="flex items-center gap-3 px-4 py-3 text-sm text-foreground/80 hover:bg-primary/5 hover:text-primary transition-colors"
+                          onClick={() => setActiveDropdown(null)}
+                        >
+                          <span className="w-1.5 h-1.5 bg-primary/30 rounded-full" />
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -304,7 +339,9 @@ export default function Header() {
                   type="button"
                   className={cn(
                     "flex items-center justify-between w-full px-4 py-3 rounded-lg font-semibold transition-colors",
-                    "text-foreground hover:bg-primary/5 hover:text-primary"
+                    isHighlightedItem(item.label)
+                      ? "bg-secondary text-white mt-3"
+                      : "text-foreground hover:bg-primary/5 hover:text-primary"
                   )}
                   onClick={() => setMobileDropdown(mobileDropdown === item.id ? null : item.id)}
                 >
@@ -326,7 +363,7 @@ export default function Header() {
                   href={item.href}
                   className={cn(
                     "block px-4 py-3 rounded-lg font-semibold transition-colors",
-                    item.label === "Destek Ol" || item.label === "Hesap Numaralarımız"
+                    isHighlightedItem(item.label)
                       ? "bg-secondary text-white text-center mt-3"
                       : "text-foreground hover:bg-primary/5 hover:text-primary"
                   )}
