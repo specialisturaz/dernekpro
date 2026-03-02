@@ -316,3 +316,20 @@ export async function getSponsorChildren() {
     return [];
   }
 }
+
+// ─── CMS Pages (Admin Sayfalar) ───
+
+export async function getPageBySlug(slug: string) {
+  try {
+    const tenantId = await getTenantId();
+    if (!tenantId) return null;
+
+    const page = await prisma.page.findFirst({
+      where: { tenantId, slug, isPublished: true },
+    });
+
+    return page ? serialize(page) : null;
+  } catch {
+    return null;
+  }
+}

@@ -73,6 +73,18 @@ export async function GET() {
       }
     }
 
+    // Admin panelinden eklenen yayinlanmis sayfalari cek
+    let cmsPages: { id: string; title: string; slug: string; order: number }[] = [];
+    try {
+      cmsPages = await prisma.page.findMany({
+        where: { tenantId, isPublished: true },
+        select: { id: true, title: true, slug: true, order: true },
+        orderBy: { order: "asc" },
+      });
+    } catch {
+      // Page tablosu yoksa veya hata olursa bos kalir
+    }
+
     // Static nav + ek ogeler
     const nav = [...mainNavigation].map((item): MenuItem => {
       if (item.label === "Destek Ol" && !campaignsActive) {
@@ -83,6 +95,19 @@ export async function GET() {
     for (const extra of extraNavItems) {
       if (!nav.find((n) => n.href === extra.href)) {
         nav.push(extra);
+      }
+    }
+
+    // CMS sayfalarini navigasyona ekle
+    for (const page of cmsPages) {
+      const pageHref = `/${page.slug}`;
+      if (!nav.find((n) => n.href === pageHref)) {
+        nav.push({
+          id: `page-${page.id}`,
+          label: page.title,
+          href: pageHref,
+          order: page.order > 0 ? page.order : 90,
+        });
       }
     }
 
