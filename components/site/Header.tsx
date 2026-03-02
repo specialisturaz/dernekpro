@@ -25,6 +25,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [mobileDropdown, setMobileDropdown] = useState<string | null>(null);
   const [activeStream, setActiveStream] = useState<ActiveStream | null>(null);
   const [navItems, setNavItems] = useState<MenuItem[]>(mainNavigation);
   const [branding, setBranding] = useState<Branding>({ name: "", logoUrl: "", logoWidth: 140, logoHeight: 40 });
@@ -243,7 +244,10 @@ export default function Header() {
           {/* Mobile Menu Button */}
           <button
             className="lg:hidden p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            onClick={() => {
+              setIsMobileMenuOpen(!isMobileMenuOpen);
+              if (isMobileMenuOpen) setMobileDropdown(null);
+            }}
             aria-label="Menüyü aç/kapat"
           >
             <svg
@@ -284,20 +288,49 @@ export default function Header() {
         <div className="container mx-auto px-6 py-4 space-y-1">
           {navItems.map((item) => (
             <div key={item.id}>
-              <Link
-                href={item.href}
-                className={cn(
-                  "block px-4 py-3 rounded-lg font-semibold transition-colors",
-                  item.label === "Destek Ol" || item.label === "Hesap Numaralarımız"
-                    ? "bg-secondary text-white text-center mt-3"
-                    : "text-foreground hover:bg-primary/5 hover:text-primary"
-                )}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
+              {item.children ? (
+                <button
+                  type="button"
+                  className={cn(
+                    "flex items-center justify-between w-full px-4 py-3 rounded-lg font-semibold transition-colors",
+                    "text-foreground hover:bg-primary/5 hover:text-primary"
+                  )}
+                  onClick={() => setMobileDropdown(mobileDropdown === item.id ? null : item.id)}
+                >
+                  {item.label}
+                  <svg
+                    className={cn(
+                      "w-4 h-4 transition-transform duration-200",
+                      mobileDropdown === item.id && "rotate-180"
+                    )}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              ) : (
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "block px-4 py-3 rounded-lg font-semibold transition-colors",
+                    item.label === "Destek Ol" || item.label === "Hesap Numaralarımız"
+                      ? "bg-secondary text-white text-center mt-3"
+                      : "text-foreground hover:bg-primary/5 hover:text-primary"
+                  )}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              )}
               {item.children && (
-                <div className="ml-4 space-y-0.5 mt-1">
+                <div
+                  className={cn(
+                    "ml-4 space-y-0.5 overflow-hidden transition-all duration-200",
+                    mobileDropdown === item.id ? "max-h-96 mt-1" : "max-h-0"
+                  )}
+                >
                   {item.children.map((child) => (
                     <Link
                       key={child.id}
