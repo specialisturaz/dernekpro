@@ -275,8 +275,10 @@ export default function Header() {
       {/* Mobile Menu */}
       <div
         className={cn(
-          "lg:hidden absolute inset-x-0 top-full bg-background border-t border-border shadow-xl transition-all duration-300 overflow-hidden",
-          isMobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+          "lg:hidden absolute inset-x-0 top-full bg-background border-t border-border shadow-xl transition-all duration-300",
+          isMobileMenuOpen
+            ? "max-h-[calc(100dvh-64px)] opacity-100 overflow-y-auto"
+            : "max-h-0 opacity-0 overflow-hidden"
         )}
       >
         <div className="container mx-auto px-6 py-4 space-y-1">
