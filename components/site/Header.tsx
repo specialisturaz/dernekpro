@@ -164,17 +164,16 @@ export default function Header() {
                 }
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200",
-                    item.label === "Destek Ol" || item.label === "Hesap Numaralarımız"
-                      ? "bg-secondary text-white hover:bg-secondary/90 ml-3 shadow-sm hover:shadow-md"
-                      : "text-foreground/80 hover:text-primary hover:bg-primary/5"
-                  )}
-                >
-                  {item.label}
-                  {item.children && (
+                {item.children ? (
+                  <button
+                    type="button"
+                    onClick={() => setActiveDropdown(activeDropdown === item.id ? null : item.id)}
+                    className={cn(
+                      "px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200",
+                      "text-foreground/80 hover:text-primary hover:bg-primary/5"
+                    )}
+                  >
+                    {item.label}
                     <svg
                       className={cn(
                         "w-3.5 h-3.5 inline-block ml-1 transition-transform duration-200",
@@ -191,8 +190,20 @@ export default function Header() {
                         d="M19 9l-7 7-7-7"
                       />
                     </svg>
-                  )}
-                </Link>
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200",
+                      item.label === "Destek Ol" || item.label === "Hesap Numaralarımız"
+                        ? "bg-secondary text-white hover:bg-secondary/90 ml-3 shadow-sm hover:shadow-md"
+                        : "text-foreground/80 hover:text-primary hover:bg-primary/5"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                )}
 
                 {/* Dropdown */}
                 {item.children && activeDropdown === item.id && (
