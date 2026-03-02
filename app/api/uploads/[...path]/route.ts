@@ -12,6 +12,11 @@ const MIME_TYPES: Record<string, string> = {
   pdf: "application/pdf",
 };
 
+/** Returns the absolute directory where uploads are stored */
+function getUploadDir(): string {
+  return process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads");
+}
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: { path: string[] } }
@@ -23,16 +28,29 @@ export async function GET(
     return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   }
 
-  const filePath = path.join(process.cwd(), "public", "uploads", ...segments);
+  const uploadDir = getUploadDir();
+  const filePath = path.join(uploadDir, ...segments);
+
+  // Also check legacy path (public/uploads) as fallback
+  const legacyPath = path.join(process.cwd(), "public", "uploads", ...segments);
 
   try {
-    const fileStat = await stat(filePath);
+    let targetPath = filePath;
+    let fileStat;
+    try {
+      fileStat = await stat(filePath);
+    } catch {
+      // Try legacy path as fallback
+      fileStat = await stat(legacyPath);
+      targetPath = legacyPath;
+    }
+
     if (!fileStat.isFile()) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const buffer = await readFile(filePath);
-    const ext = path.extname(filePath).slice(1).toLowerCase();
+    const buffer = await readFile(targetPath);
+    const ext = path.extname(targetPath).slice(1).toLowerCase();
     const contentType = MIME_TYPES[ext] || "application/octet-stream";
 
     return new NextResponse(buffer, {

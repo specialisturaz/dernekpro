@@ -68,3 +68,32 @@ export function sanitizeMapEmbed(html: string): string {
   const src = match[1];
   return `<iframe src="${src}" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
 }
+
+/**
+ * Normalizes an image URL to ensure it has the correct format.
+ * Fixes broken URLs from old uploads (missing /uploads/ prefix, bare filenames, etc.)
+ */
+export function normalizeImageUrl(url: string | null | undefined, folder = "campaigns"): string | null {
+  if (!url || url.trim() === "") return null;
+
+  const trimmed = url.trim();
+
+  // Already a full external URL (R2, CDN, etc.)
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
+
+  // Already correct format: /uploads/folder/file.ext
+  if (trimmed.startsWith("/uploads/")) return trimmed;
+
+  // Missing /uploads prefix: /campaigns/file.ext → /uploads/campaigns/file.ext
+  if (trimmed.startsWith("/")) {
+    return `/uploads${trimmed}`;
+  }
+
+  // Bare filename like "uuid.jpg" or "folder/uuid.jpg"
+  if (trimmed.includes("/")) {
+    return `/uploads/${trimmed}`;
+  }
+
+  // Just a filename: uuid.jpg → /uploads/campaigns/uuid.jpg
+  return `/uploads/${folder}/${trimmed}`;
+}

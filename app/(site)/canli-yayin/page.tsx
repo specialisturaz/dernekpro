@@ -98,7 +98,7 @@ export default function LiveStreamPage() {
   useEffect(() => {
     const fetchActive = async () => {
       try {
-        const res = await fetch("/api/livestreams/active");
+        const res = await fetch("/api/livestreams/active", { cache: "no-store" });
         const json = await res.json();
         if (json.success) {
           setStream(json.data);

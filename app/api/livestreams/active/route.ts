@@ -23,7 +23,7 @@ export async function GET() {
         { success: true, data: null },
         {
           headers: {
-            "Cache-Control": "public, s-maxage=5",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
           },
         }
       );
@@ -42,14 +42,13 @@ export async function GET() {
         { success: true, data: liveStream },
         {
           headers: {
-            "Cache-Control": "public, s-maxage=5",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
           },
         }
       );
     }
 
     // If no live stream, find the nearest scheduled one
-    // Include recently-passed scheduled times (admin may not have clicked "start" yet)
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const scheduledStream = await prisma.liveStream.findFirst({
       where: {
@@ -60,11 +59,27 @@ export async function GET() {
       orderBy: { scheduledAt: "asc" },
     });
 
+    // Auto-start: if scheduled time has passed, transition to LIVE automatically
+    if (scheduledStream && new Date(scheduledStream.scheduledAt) <= new Date()) {
+      const updated = await prisma.liveStream.update({
+        where: { id: scheduledStream.id },
+        data: { status: "LIVE", startedAt: new Date() },
+      });
+      return NextResponse.json(
+        { success: true, data: updated },
+        {
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+          },
+        }
+      );
+    }
+
     return NextResponse.json(
       { success: true, data: scheduledStream },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=5",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
         },
       }
     );

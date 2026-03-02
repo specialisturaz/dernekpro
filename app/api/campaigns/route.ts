@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getDefaultTenant } from "@/lib/tenant";
+import { normalizeImageUrl } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,12 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ success: true, data: campaigns });
+    const normalized = campaigns.map((c) => ({
+      ...c,
+      coverImage: normalizeImageUrl(c.coverImage, "campaigns"),
+    }));
+
+    return NextResponse.json({ success: true, data: normalized });
   } catch {
     return NextResponse.json({ success: false, message: "Sunucu hatası" }, { status: 500 });
   }

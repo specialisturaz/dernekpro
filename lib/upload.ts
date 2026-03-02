@@ -116,6 +116,12 @@ export async function deleteFromR2(key: string, r2Config?: StorageSettings["r2"]
 }
 
 // ===== Local Upload =====
+
+/** Returns the absolute directory where uploads are stored */
+function getUploadDir(): string {
+  return process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads");
+}
+
 export async function uploadToLocal(
   file: File,
   folder: string = "general"
@@ -125,7 +131,7 @@ export async function uploadToLocal(
   const ext = file.name.split(".").pop() || "bin";
   const fileName = `${randomUUID()}.${ext}`;
   const key = `uploads/${folder}/${fileName}`;
-  const dirPath = path.join(process.cwd(), "public", "uploads", folder);
+  const dirPath = path.join(getUploadDir(), folder);
   const filePath = path.join(dirPath, fileName);
 
   await mkdir(dirPath, { recursive: true });
@@ -133,7 +139,7 @@ export async function uploadToLocal(
   await writeFile(filePath, buffer);
 
   return {
-    url: `/${key}`,
+    url: `/uploads/${folder}/${fileName}`,
     key,
     fileName: file.name,
     mimeType: file.type,
@@ -142,13 +148,17 @@ export async function uploadToLocal(
 }
 
 export async function deleteFromLocal(key: string): Promise<void> {
-  const filePath = path.join(process.cwd(), "public", key);
+  // key is like "uploads/campaigns/uuid.jpg"
+  const subPath = key.startsWith("uploads/") ? key.slice("uploads/".length) : key;
+  const filePath = path.join(getUploadDir(), subPath);
   try {
     await unlink(filePath);
   } catch {
     // Dosya zaten silinmiş olabilir
   }
 }
+
+export { getUploadDir };
 
 // ===== Provider-Aware Helpers =====
 async function getStorageConfig(tenantId: string): Promise<StorageSettings> {

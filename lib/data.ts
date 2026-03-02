@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import { normalizeImageUrl } from "./utils";
 
 /**
  * Shared data-fetching functions for site pages.
@@ -71,7 +72,10 @@ export async function getPosts(
     ]);
 
     return serialize({
-      data: posts,
+      data: posts.map((p) => ({
+        ...p,
+        coverImage: normalizeImageUrl(p.coverImage, "posts"),
+      })),
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch {
@@ -112,9 +116,13 @@ export async function getPostBySlug(slug: string, type: "ACTIVITY" | "NEWS" | "A
     return serialize({
       post: {
         ...post,
+        coverImage: normalizeImageUrl(post.coverImage, "posts"),
         author: post.author ? { id: post.author.id, name: post.author.fullName } : null,
       },
-      related,
+      related: related.map((r) => ({
+        ...r,
+        coverImage: normalizeImageUrl(r.coverImage, "posts"),
+      })),
     });
   } catch {
     return null;
@@ -150,7 +158,12 @@ export async function getEvents(limit = 50) {
       take: limit,
     });
 
-    return serialize(events);
+    return serialize(
+      events.map((e) => ({
+        ...e,
+        coverImage: normalizeImageUrl(e.coverImage, "events"),
+      }))
+    );
   } catch {
     return [];
   }
@@ -165,7 +178,12 @@ export async function getEventBySlug(slug: string) {
       where: { tenantId, slug, status: { not: "CANCELLED" } },
     });
 
-    return event ? serialize(event) : null;
+    if (!event) return null;
+
+    return serialize({
+      ...event,
+      coverImage: normalizeImageUrl(event.coverImage, "events"),
+    });
   } catch {
     return null;
   }
@@ -194,7 +212,12 @@ export async function getCampaigns() {
       orderBy: { createdAt: "desc" },
     });
 
-    return serialize(campaigns);
+    return serialize(
+      campaigns.map((c) => ({
+        ...c,
+        coverImage: normalizeImageUrl(c.coverImage, "campaigns"),
+      }))
+    );
   } catch {
     return [];
   }
@@ -209,7 +232,12 @@ export async function getCampaignBySlug(slug: string) {
       where: { tenantId, slug, isActive: true },
     });
 
-    return campaign ? serialize(campaign) : null;
+    if (!campaign) return null;
+
+    return serialize({
+      ...campaign,
+      coverImage: normalizeImageUrl(campaign.coverImage, "campaigns"),
+    });
   } catch {
     return null;
   }
@@ -241,7 +269,7 @@ export async function getGalleryAlbums() {
         id: a.id,
         title: a.title,
         slug: a.slug,
-        coverImage: a.coverImage,
+        coverImage: normalizeImageUrl(a.coverImage, "gallery"),
         category: a.category || "genel",
         createdAt: a.createdAt,
         imageCount: a._count.images,

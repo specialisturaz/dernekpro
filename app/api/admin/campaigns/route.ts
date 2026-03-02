@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
+import { normalizeImageUrl } from "@/lib/utils";
 
 // GET /api/admin/campaigns — list all campaigns
 export async function GET() {
@@ -18,7 +19,12 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ success: true, data: campaigns });
+    const normalized = campaigns.map((c) => ({
+      ...c,
+      coverImage: normalizeImageUrl(c.coverImage, "campaigns"),
+    }));
+
+    return NextResponse.json({ success: true, data: normalized });
   } catch (error) {
     console.error("Admin campaigns GET error:", error);
     return NextResponse.json({ success: false, message: "Kampanyalar yüklenirken hata oluştu" }, { status: 500 });
@@ -60,7 +66,7 @@ export async function POST(req: NextRequest) {
         title,
         slug: finalSlug,
         description,
-        coverImage: coverImage || null,
+        coverImage: normalizeImageUrl(coverImage, "campaigns"),
         targetAmount: parseFloat(targetAmount) || 0,
         deadline: deadline ? new Date(deadline) : null,
         status: status || "ACTIVE",

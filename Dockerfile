@@ -46,7 +46,7 @@ RUN adduser --system --uid 1001 nextjs
 
 # Copy public assets and ensure uploads directory is writable
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-RUN mkdir -p /app/public/uploads && chown -R nextjs:nodejs /app/public/uploads
+RUN mkdir -p /app/data/uploads && chown -R nextjs:nodejs /app/data/uploads
 
 # Copy standalone output (includes traced node_modules with Prisma client)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -55,12 +55,16 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Copy Prisma schema (needed for migrations/introspection at runtime)
 COPY --from=builder /app/prisma ./prisma
 
+# Declare volume for persistent uploads (survives container restarts)
+VOLUME /app/data/uploads
+
 USER nextjs
 
 EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV UPLOAD_DIR="/app/data/uploads"
 
 # DATABASE_URL must be provided at runtime via environment variables
 CMD ["node", "server.js"]
